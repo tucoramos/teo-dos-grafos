@@ -1,6 +1,7 @@
 #ifndef GRAFOS_H
 #define GRAFOS_H
 
+#include "tipoLista.h"
 using namespace std;
 
 #include <fstream>
@@ -23,6 +24,8 @@ class Grafo{
 
     private:
         int tipo; // 0 = lista de adjacencia, 1 = matriz de adjacencia
+        int numeroDeVertices = 0;
+        ListaAdjacencia* listaAdjacencia = nullptr; // para tipo 0
 
         void inicializaLista(ifstream& arquivo);
         void inicializaMatriz(ifstream& arquivo);
@@ -36,7 +39,6 @@ class Grafo{
         ifstream dfsLista(int vertice);
         ifstream dfsMatriz(int vertice);
 
-        
         ifstream distanciaLista(int vertice1, int vertice2);
         ifstream distanciaMatriz(int vertice1, int vertice2);
 };

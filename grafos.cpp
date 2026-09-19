@@ -1,4 +1,8 @@
 #include "grafos.h"
+#include <iostream>
+#include <algorithm>
+#include <queue>
+using namespace std;
 
 Grafo::Grafo(int tipoGrafo, ifstream& arquivo) : tipo(tipoGrafo) {
     if (tipo == 0) {
@@ -7,17 +11,31 @@ Grafo::Grafo(int tipoGrafo, ifstream& arquivo) : tipo(tipoGrafo) {
         inicializaMatriz(arquivo);
     }
     else {
-        throw std::invalid_argument("Tipo de grafo invalido. Use 0 para lista de adjacencia ou 1 para matriz de adjacencia.");
+        throw invalid_argument("Tipo de grafo invalido. Use 0 para lista de adjacencia ou 1 para matriz de adjacencia.");
     }
 }
 
-ifstream Grafo::saidaGrafo(){
-    if (tipo ==0){
-        return saidaLista();
-    } else if (tipo ==1){
-        return saidaMatriz();
+// Implementação da inicialização do grafo usando lista de adjacência
+void Grafo::inicializaLista(ifstream& arquivo) {
+
+    // Verifica se o arquivo abre corretamente
+    if (!arquivo.is_open()) {
+        throw invalid_argument("Erro ao abrir o arquivo");
+        return;
     }
-} 
+
+    // Lê o número de vértices do arquivo
+    arquivo >> numeroDeVertices;
+
+    // Inicializa a lista de adjacência
+    listaAdjacencia = new ListaAdjacencia(numeroDeVertices);
+    int vertice, adjacente;
+
+    // Continue a leitura do arquivo para construir a lista de adjacência
+    while (arquivo >> vertice >> adjacente) {
+        listaAdjacencia->adicionarAresta(vertice, adjacente);
+    }
+}
 
 ifstream Grafo::bfs(int vertice){
     if (tipo ==0){
