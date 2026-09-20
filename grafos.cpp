@@ -373,3 +373,44 @@ ifstream Grafo::distancia(int vertice1, int vertice2){
     }
 } 
 
+ifstream Grafo::distanciaLista(int vertice1, int vertice2){
+    // Implementação da saída da distância entre dois vértices
+    string nomeArquivo = "saida_lista.txt";
+    ofstream arquivo(nomeArquivo);
+
+    // Verifica se o arquivo abre corretamente
+    if (!arquivo.is_open()) {
+        throw invalid_argument("Erro ao abrir o arquivo de saída");
+    }
+
+    // Chama a implementação da BFS e recebe os vetores de pai e nível
+    auto resultado = implementacaoBFSLista(vertice1);
+    vector<int> pai = resultado.first;
+    vector<int> nivel = resultado.second;
+
+    // Verifica se o vértice2 foi alcançado
+    if (nivel[vertice2] == -1) {
+        arquivo << "Nao ha caminho entre os vertices " << vertice1 << " e " << vertice2 << endl;
+    } else {
+        // Reconstrói o caminho do vértice1 até o vértice2 usando o vetor de pai
+        vector<int> caminho;
+        for (int v = vertice2; v != -1; v = pai[v]) {
+            caminho.push_back(v);
+        }
+        reverse(caminho.begin(), caminho.end());
+
+        // Escreve a distância e o caminho no arquivo de saída
+        arquivo << "Distancia entre os vertices " << vertice1 << " e " << vertice2 << ": " << nivel[vertice2] << endl;
+        arquivo << "Caminho: ";
+        for (size_t i = 0; i < caminho.size(); ++i) {
+            arquivo << caminho[i];
+            if (i < caminho.size() - 1) {
+                arquivo << " -> ";
+            }
+        }
+        arquivo << endl;
+    }
+
+    arquivo.close();
+    return ifstream(nomeArquivo);
+}
