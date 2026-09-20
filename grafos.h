@@ -31,16 +31,23 @@ class Grafo{
         void inicializaMatriz(ifstream& arquivo);
 
         ifstream saidaLista();
+            void infosGrauLista(ostream& arquivo);
+            void diametroLista(ostream& arquivo);
+            void componentesConexasLista(ostream& arquivo);
         ifstream saidaMatriz();
 
         ifstream bfsLista(int vertice);
+        pair<vector<int>, vector<int>> implementacaoBFSLista(int vertice);
         ifstream bfsMatriz(int vertice);
 
         ifstream dfsLista(int vertice);
+        pair<vector<int>, vector<int>> implementacaoDFSLista(int vertice);
         ifstream dfsMatriz(int vertice);
 
         ifstream distanciaLista(int vertice1, int vertice2);
         ifstream distanciaMatriz(int vertice1, int vertice2);
+
+        
 };
 
 #endif
