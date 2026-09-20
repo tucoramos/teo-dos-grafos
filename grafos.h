@@ -54,12 +54,12 @@ class Grafo{
             int diametroMatriz();
 
         ifstream bfsLista(int vertice);
-            pair<vector<int>, vector<int>> implementacaoBFSLista(int vertice);
+            ArvoreBusca implementacaoBFSLista(int vertice);
         ifstream bfsMatriz(int vertice);
             ArvoreBusca implementacaobfsMatriz(int vertice);
 
         ifstream dfsLista(int vertice);
-            pair<vector<int>, vector<int>> implementacaoDFSLista(int vertice);
+            ArvoreBusca implementacaoDFSLista(int vertice);
         ifstream dfsMatriz(int vertice);
             ArvoreBusca implementacaodfsMatriz(int vertice);
 

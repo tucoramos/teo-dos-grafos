@@ -56,8 +56,8 @@ void Grafo::inicializaMatriz(ifstream& arquivo){
 
     // Continue a leitura do arquivo para construir a lista de adjacência
     while (arquivo >> vertice1 >> vertice2) {
-        matrizAdjacencia[vertice1][vertice2] = true;
-        matrizAdjacencia[vertice2][vertice1] = true; // Grafo não direcionado
+        matrizAdjacencia[vertice1-1][vertice2-1] = true;
+        matrizAdjacencia[vertice2-1][vertice1-1] = true; // Grafo não direcionado
     }
 
 }
@@ -108,11 +108,11 @@ ifstream Grafo::saidaMatriz(){
     }
 
     //grau minimo,
-    int grauMinimo = *min_element(graus.begin() + 1, graus.end());
+    int grauMinimo = *min_element(graus.begin(), graus.end());
     arquivo << "Grau minimo: " << grauMinimo << endl;
 
     //grau maximo, 
-    int grauMaximo = *max_element(graus.begin() + 1, graus.end());
+    int grauMaximo = *max_element(graus.begin(), graus.end());
     arquivo << "Grau maximo: " << grauMaximo << endl;
     
     //grau medio,
@@ -149,7 +149,7 @@ ifstream Grafo::saidaMatriz(){
     for (size_t i = 0; i < tam; ++i) {
         arquivo << "Componente " << i + 1 << " (tamanho: " << componentes[i].size() << "): \n   [";
         for (int vertice : componentes[i]) {
-            arquivo << vertice + 1 << " "; // +1 para ajustar ao índice do vértice
+            arquivo << vertice << " "; 
         }
         arquivo << "]\n";
     }
@@ -212,12 +212,11 @@ void Grafo::diametroLista(ostream& arquivo){
     for (int i = 1; i < numeroDeVertices + 1; ++i) {
         // Para cada vértice, realiza uma busca em largura (BFS) para calcular a distância minima dele até os outros vértices
         auto resultadoBFS = implementacaoBFSLista(i);
-        vector<int> nivel = resultadoBFS.second;
 
         // itera sobre os níveis para encontrar a maior distância mínima encontrada ate agora (inclusive de BFS de outros vértices)
         for (int j = 1; j < numeroDeVertices + 1; ++j) {
-            if (nivel[j] != -1) {
-                diametro = max(diametro, nivel[j]);
+            if (resultadoBFS.nivel[j] != -1) {
+                diametro = max(diametro, resultadoBFS.nivel[j]);
             } else {
                 // Se algum vértice não for alcançável, o grafo não é conexo
                 arquivo << "O grafo não é conexo." << endl;
@@ -247,11 +246,10 @@ void Grafo::componentesConexasLista(ostream& arquivo){
 
             //Ja que encontramos uma nova componente conexa, realizamos uma BFS para encontrar todos os vértices dessa componente
             auto resultadoBFS = implementacaoBFSLista(i);
-            vector<int> nivel = resultadoBFS.second; //salva vetor de níveis do BFS
 
             // Itera sobre todos os vértices e marca como visitados aqueles que foram alcançados na BFS, adicionando-os à componente atual
             for (int j = 1; j < numeroDeVertices + 1; ++j) {
-                if (nivel[j] != -1) {
+                if (resultadoBFS.nivel[j] != -1) {
                     visitado[j] = true;
                     componente.push_back(j);
                     numeroElementos++;
@@ -469,6 +467,10 @@ vector<vector<int>> Grafo::componentesConexasMatriz() {
 // Implementação da saida da BFS usando lista de adjacência
 ifstream Grafo::bfsLista(int vertice){
     // Implementação da saída da BFS
+    if(vertice < 1 || vertice > numeroDeVertices) {
+        throw invalid_argument("Vertice inicial invalido");
+    }
+
     string nomeArquivo = "bfs_lista.txt";
     ofstream arquivo(nomeArquivo);
 
@@ -479,16 +481,14 @@ ifstream Grafo::bfsLista(int vertice){
     }
 
     // Chama a implementação da BFS e recebe os vetores de pai e nível
-    auto resultado = implementacaoBFSLista(vertice);
-    vector<int> pai = resultado.first;
-    vector<int> nivel = resultado.second;
+    ArvoreBusca arv = implementacaoBFSLista(vertice);
 
     // Escreve os resultados da BFS no arquivo de saída
     arquivo << "BFS a partir do vertice: " << vertice << endl;
     arquivo << "Vertice | Pai | Nivel\n";
     for (int i = 1; i < numeroDeVertices + 1; ++i) {
-        if (nivel[i] != -1){
-            arquivo << i << " | " << pai[i] << " | " << nivel[i] << "\n";
+        if (arv.nivel[i] != -1){
+            arquivo << i << " | " << arv.pai[i] << " | " << arv.nivel[i] << "\n";
         }
     }
     arquivo.close();
@@ -498,6 +498,9 @@ ifstream Grafo::bfsLista(int vertice){
 }
 
 ifstream Grafo::bfsMatriz(int vertice){
+    if(vertice < 1 || vertice > numeroDeVertices) {
+        throw invalid_argument("Vertice inicial invalido");
+    }
     string nomeArquivo = "bfs_matriz.txt";
     ofstream arquivoSaida(nomeArquivo);
 
@@ -519,7 +522,7 @@ ifstream Grafo::bfsMatriz(int vertice){
 }
 
 // Implementação da busca em largura (BFS) usando lista de adjacência
-pair<vector<int>, vector<int>> Grafo::implementacaoBFSLista(int vertice) {
+ArvoreBusca Grafo::implementacaoBFSLista(int vertice) {
     // Guarda o estado de cada vértice (visitado ou não) 
     vector<int> visitado(numeroDeVertices + 1, 0);
     // Guarda o nível de cada vértice
@@ -555,7 +558,7 @@ pair<vector<int>, vector<int>> Grafo::implementacaoBFSLista(int vertice) {
         }
     }
 
-    return make_pair(pai, nivel);
+    return ArvoreBusca{vertice, pai, nivel, -1, -1};
 }
 
 // Metodo que chama a implementação da DFS dependendo do tipo de grafo
@@ -569,6 +572,10 @@ ifstream Grafo::dfs(int vertice){
 
 // Implementação da saida da DFS usando lista de adjacência
 ifstream Grafo::dfsLista(int vertice){
+    // Checa se o vértice inicial é válido
+    if(vertice < 1 || vertice > numeroDeVertices) {
+        throw invalid_argument("Vertice inicial invalido");
+    }
     // Implementação da saída da DFS
     string nomeArquivo = "dfs_lista.txt";
     ofstream arquivo(nomeArquivo);
@@ -580,16 +587,14 @@ ifstream Grafo::dfsLista(int vertice){
     }
 
     // Chama a implementação da DFS e recebe os vetores de pai e nívelq
-    auto resultado = implementacaoDFSLista(vertice);
-    vector<int> pai = resultado.first;
-    vector<int> nivel = resultado.second;
+    ArvoreBusca arv = implementacaoDFSLista(vertice);
 
     // Escreve os resultados da DFS no arquivo de saída
     arquivo << "DFS a partir do vertice: " << vertice << endl;
     arquivo << "Vertice | Pai | Nivel\n";
     for (int i = 1; i < numeroDeVertices + 1; ++i) {
-        if (nivel[i] != -1){
-            arquivo << i << " | " << pai[i] << " | " << nivel[i] << "\n";
+        if (arv.nivel[i] != -1){
+            arquivo << i << " | " << arv.pai[i] << " | " << arv.nivel[i] << "\n";
         }
     }
     arquivo.close();
@@ -599,6 +604,10 @@ ifstream Grafo::dfsLista(int vertice){
 }
 
 ifstream Grafo::dfsMatriz(int vertice){
+    // Checa se o vértice inicial é válido
+    if(vertice < 1 || vertice > numeroDeVertices) {
+        throw invalid_argument("Vertice inicial invalido");
+    }
     string nomeArquivo = "dfs_matriz.txt";
     ofstream arquivoSaida(nomeArquivo);
 
@@ -620,7 +629,7 @@ ifstream Grafo::dfsMatriz(int vertice){
 }
 
 // Implementação da busca em profundidade (DFS) usando lista de adjacência
-pair<vector<int>, vector<int>> Grafo::implementacaoDFSLista(int vertice){
+ArvoreBusca Grafo::implementacaoDFSLista(int vertice){
 
     // Guarda o estado de cada vértice (visitado ou não) 
     vector<int> visitado(numeroDeVertices + 1, 0);
@@ -665,7 +674,7 @@ pair<vector<int>, vector<int>> Grafo::implementacaoDFSLista(int vertice){
         pilha.push(vizinho);
     }
 
-    return make_pair(pai, nivel);
+    return ArvoreBusca{vertice, pai, nivel, -1, -1};//nivelMaximo e maisDistante nao usados na DFS, entao sao setados como -1
 }
 
 // Metodo que chama a implementação da distância entre dois vértices dependendo do tipo de grafo
@@ -689,22 +698,20 @@ ifstream Grafo::distanciaLista(int vertice1, int vertice2){
 
     // Chama a implementação da BFS e recebe os vetores de pai e nível
     auto resultado = implementacaoBFSLista(vertice1);
-    vector<int> pai = resultado.first;
-    vector<int> nivel = resultado.second;
 
     // Verifica se o vértice2 foi alcançado
-    if (nivel[vertice2] == -1) {
+    if (resultado.nivel[vertice2] == -1) {
         arquivo << "Nao ha caminho entre os vertices " << vertice1 << " e " << vertice2 << endl;
     } else {
         // Reconstrói o caminho do vértice1 até o vértice2 usando o vetor de pai
         vector<int> caminho;
-        for (int v = vertice2; v != 0; v = pai[v]) {
+        for (int v = vertice2; v != 0; v = resultado.pai[v]) {
             caminho.push_back(v);
         }
         reverse(caminho.begin(), caminho.end());
 
         // Escreve a distância e o caminho no arquivo de saída
-        arquivo << "Distancia entre os vertices " << vertice1 << " e " << vertice2 << ": " << nivel[vertice2] << endl;
+        arquivo << "Distancia entre os vertices " << vertice1 << " e " << vertice2 << ": " << resultado.nivel[vertice2] << endl;
         arquivo << "Caminho: ";
         for (size_t i = 0; i < caminho.size(); ++i) {
             arquivo << caminho[i];
