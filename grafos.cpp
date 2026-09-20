@@ -11,7 +11,7 @@ Grafo::Grafo(int tipoGrafo, ifstream& arquivo) : tipo(tipoGrafo) {
     }
 }
 
-ofstream Grafo::saidaGrafo(){
+ifstream Grafo::saidaGrafo(){
     if (tipo ==0){
         return saidaLista();
     } else if (tipo ==1){
@@ -19,7 +19,7 @@ ofstream Grafo::saidaGrafo(){
     }
 } 
 
-ofstream Grafo::bfs(int vertice){
+ifstream Grafo::bfs(int vertice){
     if (tipo ==0){
         return bfsLista(vertice);
     } else if (tipo ==1){
@@ -27,9 +27,8 @@ ofstream Grafo::bfs(int vertice){
     }
 }
 
-ArvoreBusca Grafo::bfsMatriz(int vertice) {
+ArvoreBusca Grafo::implementacaobfsMatriz(int vertice) {
     // Implementação do BFS para matriz de adjacência
-    // Retorna um ofstream com o resultado do BFS
     ArvoreBusca arv;
     arv.raiz = vertice;
     arv.pai.assign(numVertices, -1);
@@ -71,7 +70,7 @@ ArvoreBusca Grafo::bfsMatriz(int vertice) {
 */
 }
 
-ArvoreBusca Grafo::dfsMatriz(int vertice) {
+ArvoreBusca Grafo::implementacaodfsMatriz(int vertice) {
     ArvoreBusca arv;
     arv.raiz = vertice;
     arv.pai.assign(numVertices, -1);
@@ -117,16 +116,16 @@ ArvoreBusca Grafo::dfsMatriz(int vertice) {
 */
 }
 
-int Grafo::distanciaMatriz(int vertice1, int vertice2){
-    ArvoreBusca arv = bfsMatriz(vertice1);
-    return arv.nivel[vertice2-1];
+ifstream Grafo::distanciaMatriz(int vertice1, int vertice2){
+    ArvoreBusca arv = implementacaobfsMatriz(vertice1);
+    //return arv.nivel[vertice2-1];
 }
 
 int Grafo::diametroMatriz(){
     int diametro = 0;
     int temp=0;
     for (int i = 1; i <= numVertices; i++) {
-        temp=bfsMatriz(i).nivelMaximo;
+        temp=implementacaobfsMatriz(i).nivelMaximo;
         if (diametro < temp) {
             diametro = temp;
         }
@@ -141,7 +140,7 @@ vector<vector<int>> Grafo::componentesConexasMatriz() {
     for (int raiz = 1; raiz <= numVertices; raiz++) {
         if (visitado[raiz-1]) continue;        // ja pertence a uma componente anterior
 
-        ArvoreBusca arv = bfsMatriz(raiz);     // alcanca exatamente a componente de raiz
+        ArvoreBusca arv = implementacaobfsMatriz(raiz);     // alcanca exatamente a componente de raiz
 
         vector<int> vertices;
         for (int i = 0; i < numVertices; i++) {
@@ -160,7 +159,7 @@ vector<vector<int>> Grafo::componentesConexasMatriz() {
     return componentes;
 }
 
-ofstream Grafo::dfs(int vertice){
+ifstream Grafo::dfs(int vertice){
     if (tipo ==0){
         return dfsLista(vertice);
     } else if (tipo ==1){
@@ -168,7 +167,7 @@ ofstream Grafo::dfs(int vertice){
     }
 } 
 
-ofstream Grafo::distancia(int vertice1, int vertice2){
+ifstream Grafo::distancia(int vertice1, int vertice2){
     if (tipo ==0){
         return distanciaLista(vertice1, vertice2);
     } else if (tipo ==1){
