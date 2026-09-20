@@ -12,7 +12,16 @@ struct No {
 class ListaAdjacencia {
 public:
     ListaAdjacencia(int tam): tamanho(tam), estrutura(tam + 1, nullptr) {}
-
+    ~ListaAdjacencia(){
+        for (int i = 1; i <= tamanho; ++i) {
+            No* atual = estrutura[i];
+            while (atual != nullptr) {
+                No* temp = atual;
+                atual = atual->prox;
+                delete temp;
+            }
+        }
+    }
     void adicionarAresta(int vertice1, int vertice2) {
         No* novoNo = new No{vertice2, estrutura[vertice1]};
         estrutura[vertice1] = novoNo;

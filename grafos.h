@@ -21,7 +21,7 @@ class Grafo{
         ifstream bfs(int vertice); // item 4
         ifstream dfs(int vertice); // item 4
         ifstream distancia(int vertice1, int vertice2); //item 5 (distancia entre dois vertices)
-
+        ~Grafo();
     private:
         int tipo; // 0 = lista de adjacencia, 1 = matriz de adjacencia
         int numeroDeVertices = 0;
@@ -47,6 +47,7 @@ class Grafo{
         ifstream distanciaLista(int vertice1, int vertice2);
         ifstream distanciaMatriz(int vertice1, int vertice2);
 
+        void liberarListaAdjacencia();
         
 };
 

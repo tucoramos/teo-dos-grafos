@@ -51,10 +51,10 @@ ifstream Grafo::saidaGrafo(){
 
 // Implementação da iformações do grau dos vértices usando lista de adjacência
 void Grafo::infosGrauLista(ostream& arquivo){
-    vector<int> graus(numeroDeVertices, 0);
+    vector<int> graus(numeroDeVertices + 1, 0);
 
     // Calcula o grau de cada vértice
-    for (int i = 0; i < numeroDeVertices; ++i) {
+    for (int i = 1; i < numeroDeVertices + 1; ++i) {
         No* n = listaAdjacencia->estrutura[i];
         while (n != nullptr) {
             graus[i]++;
@@ -63,8 +63,15 @@ void Grafo::infosGrauLista(ostream& arquivo){
     }
 
     // Acha o grau mínimo, máximo
-    int grauMinimo = *min_element(graus.begin(), graus.end());
-    int grauMaximo = *max_element(graus.begin(), graus.end());
+    if (numeroDeVertices == 0) {
+        arquivo << "Grau minimo: 0" << endl;
+        arquivo << "Grau maximo: 0" << endl;
+        arquivo << "Grau medio: 0" << endl;
+        arquivo << "Mediana de grau: 0" << endl;
+        return;
+    }
+    int grauMinimo = *min_element(graus.begin() + 1, graus.end());
+    int grauMaximo = *max_element(graus.begin() + 1, graus.end());
 
     //Soma todos os graus e divide pelo número de vértices para achar o grau médio
     double grauMedio = 0;
@@ -74,12 +81,12 @@ void Grafo::infosGrauLista(ostream& arquivo){
     grauMedio /= numeroDeVertices;
 
     // Ordena todos os graus e calcula a mediana
-    sort(graus.begin(), graus.end());
+    sort(graus.begin() + 1, graus.end());
     double mediana;
     if (numeroDeVertices % 2 == 0) {
-        mediana = (graus[numeroDeVertices / 2 - 1] + graus[numeroDeVertices / 2]) / 2.0;
+        mediana = (graus[numeroDeVertices / 2] + graus[numeroDeVertices / 2 + 1]) / 2.0;
     } else {
-        mediana = graus[numeroDeVertices / 2];
+        mediana = graus[numeroDeVertices / 2 + 1];
     }
 
     // Escreve as informações no arquivo de saída
@@ -93,13 +100,13 @@ void Grafo::infosGrauLista(ostream& arquivo){
 void Grafo::diametroLista(ostream& arquivo){
     int diametro = 0;
     
-    for (int i = 0; i < numeroDeVertices; ++i) {
+    for (int i = 1; i < numeroDeVertices + 1; ++i) {
         // Para cada vértice, realiza uma busca em largura (BFS) para calcular a distância minima dele até os outros vértices
         auto resultadoBFS = implementacaoBFSLista(i);
         vector<int> nivel = resultadoBFS.second;
 
         // itera sobre os níveis para encontrar a maior distância mínima encontrada ate agora (inclusive de BFS de outros vértices)
-        for (int j = 0; j < numeroDeVertices; ++j) {
+        for (int j = 1; j < numeroDeVertices + 1; ++j) {
             if (nivel[j] != -1) {
                 diametro = max(diametro, nivel[j]);
             } else {
@@ -120,9 +127,9 @@ void Grafo::componentesConexasLista(ostream& arquivo){
     vector<pair<int,vector<int>>> resultado;
     int numeroComponetes = 0;
     int numeroElementos = 0;
-    vector<bool> visitado(numeroDeVertices,false);
+    vector<bool> visitado(numeroDeVertices + 1, false);
 
-    for (int i = 0; i < numeroDeVertices; ++i) {
+    for (int i = 1; i < numeroDeVertices + 1; ++i) {
         if(!visitado[i]){
             // Se o vértice não foi visitado, então encontramos uma nova componente conexa
             numeroComponetes++;
@@ -134,7 +141,7 @@ void Grafo::componentesConexasLista(ostream& arquivo){
             vector<int> nivel = resultadoBFS.second; //salva vetor de níveis do BFS
 
             // Itera sobre todos os vértices e marca como visitados aqueles que foram alcançados na BFS, adicionando-os à componente atual
-            for (int j = 0; j < numeroDeVertices; ++j) {
+            for (int j = 1; j < numeroDeVertices + 1; ++j) {
                 if (nivel[j] != -1) {
                     visitado[j] = true;
                     componente.push_back(j);
@@ -187,14 +194,14 @@ ifstream Grafo::saidaLista(){
 
     //numero de arestas,
     int numeroDeArestas = 0;
-    for (int i = 0; i < numeroDeVertices; ++i) {
+    for (int i = 1; i < numeroDeVertices + 1; ++i) {
         No* n = listaAdjacencia->estrutura[i];
         while (n != nullptr) {
             numeroDeArestas++;
             n = n->prox;
         }
     }
-    arquivo << "Numero de arestas: " << numeroDeArestas << endl;
+    arquivo << "Numero de arestas: " << numeroDeArestas/2 << endl;
 
     //Infos sobre grau dos vertices
     infosGrauLista(arquivo);
@@ -221,7 +228,7 @@ ifstream Grafo::bfs(int vertice){
 // Implementação da saida da BFS usando lista de adjacência
 ifstream Grafo::bfsLista(int vertice){
     // Implementação da saída da BFS
-    string nomeArquivo = "saida_lista.txt";
+    string nomeArquivo = "bfs_lista.txt";
     ofstream arquivo(nomeArquivo);
 
 
@@ -238,8 +245,10 @@ ifstream Grafo::bfsLista(int vertice){
     // Escreve os resultados da BFS no arquivo de saída
     arquivo << "BFS a partir do vertice: " << vertice << endl;
     arquivo << "Vertice | Pai | Nivel\n";
-    for (int i = 0; i < numeroDeVertices; ++i) {
-        arquivo << i << " | " << pai[i] << " | " << nivel[i] << "\n";
+    for (int i = 1; i < numeroDeVertices + 1; ++i) {
+        if (nivel[i] != -1){
+            arquivo << i << " | " << pai[i] << " | " << nivel[i] << "\n";
+        }
     }
     arquivo.close();
 
@@ -250,18 +259,18 @@ ifstream Grafo::bfsLista(int vertice){
 // Implementação da busca em largura (BFS) usando lista de adjacência
 pair<vector<int>, vector<int>> Grafo::implementacaoBFSLista(int vertice) {
     // Guarda o estado de cada vértice (visitado ou não) 
-    vector<int> visitado(numeroDeVertices, 0);
+    vector<int> visitado(numeroDeVertices + 1, 0);
     // Guarda o nível de cada vértice
-    vector<int> nivel(numeroDeVertices, -1);
+    vector<int> nivel(numeroDeVertices + 1, -1);
     // Guarda a ordem de visita dos vértices
-    vector<int> pai(numeroDeVertices,0);
+    vector<int> pai(numeroDeVertices + 1, -1);
     // Fila para a BFS
     queue<int> fila;
 
     // Inicializa o vértice inicial
     visitado[vertice] = 1;
     nivel[vertice] = 0;
-    pai[vertice] = -1;
+    pai[vertice] = 0; // O vértice inicial não tem pai
     fila.push(vertice);
 
 
@@ -299,7 +308,7 @@ ifstream Grafo::dfs(int vertice){
 // Implementação da saida da DFS usando lista de adjacência
 ifstream Grafo::dfsLista(int vertice){
     // Implementação da saída da DFS
-    string nomeArquivo = "saida_lista.txt";
+    string nomeArquivo = "dfs_lista.txt";
     ofstream arquivo(nomeArquivo);
 
 
@@ -314,10 +323,12 @@ ifstream Grafo::dfsLista(int vertice){
     vector<int> nivel = resultado.second;
 
     // Escreve os resultados da DFS no arquivo de saída
-    arquivo << "BFS a partir do vertice: " << vertice << endl;
+    arquivo << "DFS a partir do vertice: " << vertice << endl;
     arquivo << "Vertice | Pai | Nivel\n";
-    for (int i = 0; i < numeroDeVertices; ++i) {
-        arquivo << i << " | " << pai[i] << " | " << nivel[i] << "\n";
+    for (int i = 1; i < numeroDeVertices + 1; ++i) {
+        if (nivel[i] != -1){
+            arquivo << i << " | " << pai[i] << " | " << nivel[i] << "\n";
+        }
     }
     arquivo.close();
 
@@ -327,16 +338,13 @@ ifstream Grafo::dfsLista(int vertice){
 
 // Implementação da busca em profundidade (DFS) usando lista de adjacência
 pair<vector<int>, vector<int>> Grafo::implementacaoDFSLista(int vertice){
-    vector<int> visitado(numeroDeVertices, 0);
-    vector<int> nivel(numeroDeVertices, -1);
-    vector<int> pai(numeroDeVertices,0);
 
     // Guarda o estado de cada vértice (visitado ou não) 
-    vector<int> visitado(numeroDeVertices, 0);
+    vector<int> visitado(numeroDeVertices + 1, 0);
     // Guarda o nível de cada vértice
-    vector<int> nivel(numeroDeVertices, -1);
+    vector<int> nivel(numeroDeVertices + 1, -1);
     // Guarda a ordem de visita dos vértices
-    vector<int> pai(numeroDeVertices,0);
+    vector<int> pai(numeroDeVertices + 1, -1);
     // pilha para a DFS
     stack<int> pilha;
 
@@ -344,21 +352,34 @@ pair<vector<int>, vector<int>> Grafo::implementacaoDFSLista(int vertice){
     pilha.push(vertice);
     visitado[vertice] = 1;
     nivel[vertice] = 0;
-
+    pai[vertice] = 0; // O vértice inicial não tem pai
+    
+    vector<No*> proximo = listaAdjacencia->estrutura;
     while (!pilha.empty()) {
         int atual = pilha.top();
-        pilha.pop();
+        No* n = proximo[atual];
 
-        No* n = listaAdjacencia->estrutura[atual];
-        while (n != nullptr) {
-            if (!visitado[n->valor]) {
-                visitado[n->valor] = 1;
-                nivel[n->valor] = nivel[atual] + 1;
-                pai[n->valor] = atual;
-                pilha.push(n->valor);
-            }
+        // Pula os vizinhos que já foram visitados.
+        while (n != nullptr && visitado[n->valor]) {
             n = n->prox;
         }
+
+        // Terminou todos os vizinhos: volta ao vértice anterior.
+        if (n == nullptr) {
+            pilha.pop();
+            continue;
+        }
+
+        // Guarda onde retomar quando voltar para este vértice.
+        proximo[atual] = n->prox;
+
+        int vizinho = n->valor;
+        visitado[vizinho] = 1;
+        pai[vizinho] = atual;
+        nivel[vizinho] = nivel[atual] + 1;
+
+        // Explora esse vizinho antes de continuar os demais.
+        pilha.push(vizinho);
     }
 
     return make_pair(pai, nivel);
@@ -375,7 +396,7 @@ ifstream Grafo::distancia(int vertice1, int vertice2){
 
 ifstream Grafo::distanciaLista(int vertice1, int vertice2){
     // Implementação da saída da distância entre dois vértices
-    string nomeArquivo = "saida_lista.txt";
+    string nomeArquivo = "distancia_lista.txt";
     ofstream arquivo(nomeArquivo);
 
     // Verifica se o arquivo abre corretamente
@@ -394,7 +415,7 @@ ifstream Grafo::distanciaLista(int vertice1, int vertice2){
     } else {
         // Reconstrói o caminho do vértice1 até o vértice2 usando o vetor de pai
         vector<int> caminho;
-        for (int v = vertice2; v != -1; v = pai[v]) {
+        for (int v = vertice2; v != 0; v = pai[v]) {
             caminho.push_back(v);
         }
         reverse(caminho.begin(), caminho.end());
@@ -413,4 +434,18 @@ ifstream Grafo::distanciaLista(int vertice1, int vertice2){
 
     arquivo.close();
     return ifstream(nomeArquivo);
+}
+
+Grafo::~Grafo() {
+    if (tipo == 0) {
+        liberarListaAdjacencia();
+    } else if (tipo == 1) {
+        // Se houver alocação dinâmica para matriz de adjacência, libere-a aqui
+    }
+}
+
+void Grafo::liberarListaAdjacencia() {
+    if (listaAdjacencia != nullptr) {
+        delete listaAdjacencia;
+    }
 }
