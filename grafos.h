@@ -5,6 +5,17 @@
 using namespace std;
 
 #include <fstream>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+
+struct ArvoreBusca{
+    int raiz;
+    vector<int> pai;
+    vector<int> nivel;
+    int nivelMaximo;
+    int maisDistante;
+};
 
 class Grafo{
     public:
@@ -21,11 +32,16 @@ class Grafo{
         ifstream bfs(int vertice); // item 4
         ifstream dfs(int vertice); // item 4
         ifstream distancia(int vertice1, int vertice2); //item 5 (distancia entre dois vertices)
-        ~Grafo();
+        ~Grafo();        
+        vector<vector<int>> componentesConexas(); // item 6
+
     private:
         int tipo; // 0 = lista de adjacencia, 1 = matriz de adjacencia
         int numeroDeVertices = 0;
         ListaAdjacencia* listaAdjacencia = nullptr; // para tipo 0
+        int numVertices;
+        vector<vector<bool>> matrizAdjacencia;
+        vector<vector<int>> componentesConexasMatriz();
 
         void inicializaLista(ifstream& arquivo);
         void inicializaMatriz(ifstream& arquivo);
@@ -38,10 +54,12 @@ class Grafo{
 
         ifstream bfsLista(int vertice);
         pair<vector<int>, vector<int>> implementacaoBFSLista(int vertice);
+        ArvoreBusca implementacaobfsMatriz(int vertice);
         ifstream bfsMatriz(int vertice);
 
         ifstream dfsLista(int vertice);
         pair<vector<int>, vector<int>> implementacaoDFSLista(int vertice);
+        ArvoreBusca implementacaodfsMatriz(int vertice);
         ifstream dfsMatriz(int vertice);
 
         ifstream distanciaLista(int vertice1, int vertice2);
@@ -49,6 +67,7 @@ class Grafo{
 
         void liberarListaAdjacencia();
         
+        int diametroMatriz();
 };
 
 #endif
