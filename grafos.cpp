@@ -3,9 +3,10 @@
 #include <algorithm>
 #include <queue>
 #include <string>
+#include <stack>
 
 using namespace std;
-
+// Metodo que chama a implementação da inicialização do grafo dependendo do tipo de grafo
 Grafo::Grafo(int tipoGrafo, ifstream& arquivo) : tipo(tipoGrafo) {
     if (tipo == 0) {
         inicializaLista(arquivo);
@@ -39,6 +40,7 @@ void Grafo::inicializaLista(ifstream& arquivo) {
     }
 }
 
+// Metodo que chama a implementação da saída do grafo dependendo do tipo de grafo
 ifstream Grafo::saidaGrafo(){
     if (tipo ==0){
         return saidaLista();
@@ -164,7 +166,7 @@ void Grafo::componentesConexasLista(ostream& arquivo){
     }
 }
 
-// Implementação da saída do grafo usando lista de adjacência
+// Implementação da saída padrão do grafo usando lista de adjacência
 ifstream Grafo::saidaLista(){
     // Cria um arquivo de saída para a lista de adjacência
     string nomeArquivo = "saida_lista.txt";
@@ -207,6 +209,7 @@ ifstream Grafo::saidaLista(){
     return ifstream(nomeArquivo);
 }
 
+// Metodo que chama a implementação da BFS dependendo do tipo de grafo
 ifstream Grafo::bfs(int vertice){
     if (tipo ==0){
         return bfsLista(vertice);
@@ -214,6 +217,35 @@ ifstream Grafo::bfs(int vertice){
         return bfsMatriz(vertice);
     }
 } 
+
+// Implementação da saida da BFS usando lista de adjacência
+ifstream Grafo::bfsLista(int vertice){
+    // Implementação da saída da BFS
+    string nomeArquivo = "saida_lista.txt";
+    ofstream arquivo(nomeArquivo);
+
+
+    // Verifica se o arquivo abre corretamente
+    if (!arquivo.is_open()) {
+        throw invalid_argument("Erro ao abrir o arquivo de saída");
+    }
+
+    // Chama a implementação da BFS e recebe os vetores de pai e nível
+    auto resultado = implementacaoBFSLista(vertice);
+    vector<int> pai = resultado.first;
+    vector<int> nivel = resultado.second;
+
+    // Escreve os resultados da BFS no arquivo de saída
+    arquivo << "BFS a partir do vertice: " << vertice << endl;
+    arquivo << "Vertice | Pai | Nivel\n";
+    for (int i = 0; i < numeroDeVertices; ++i) {
+        arquivo << i << " | " << pai[i] << " | " << nivel[i] << "\n";
+    }
+    arquivo.close();
+
+    // Retorna o arquivo de saída em modo de leitura
+    return ifstream(nomeArquivo);
+}
 
 // Implementação da busca em largura (BFS) usando lista de adjacência
 pair<vector<int>, vector<int>> Grafo::implementacaoBFSLista(int vertice) {
@@ -255,6 +287,7 @@ pair<vector<int>, vector<int>> Grafo::implementacaoBFSLista(int vertice) {
     return make_pair(pai, nivel);
 }
 
+// Metodo que chama a implementação da DFS dependendo do tipo de grafo
 ifstream Grafo::dfs(int vertice){
     if (tipo ==0){
         return dfsLista(vertice);
@@ -263,6 +296,75 @@ ifstream Grafo::dfs(int vertice){
     }
 } 
 
+// Implementação da saida da DFS usando lista de adjacência
+ifstream Grafo::dfsLista(int vertice){
+    // Implementação da saída da DFS
+    string nomeArquivo = "saida_lista.txt";
+    ofstream arquivo(nomeArquivo);
+
+
+    // Verifica se o arquivo abre corretamente
+    if (!arquivo.is_open()) {
+        throw invalid_argument("Erro ao abrir o arquivo de saída");
+    }
+
+    // Chama a implementação da DFS e recebe os vetores de pai e nívelq
+    auto resultado = implementacaoDFSLista(vertice);
+    vector<int> pai = resultado.first;
+    vector<int> nivel = resultado.second;
+
+    // Escreve os resultados da DFS no arquivo de saída
+    arquivo << "BFS a partir do vertice: " << vertice << endl;
+    arquivo << "Vertice | Pai | Nivel\n";
+    for (int i = 0; i < numeroDeVertices; ++i) {
+        arquivo << i << " | " << pai[i] << " | " << nivel[i] << "\n";
+    }
+    arquivo.close();
+
+    // Retorna o arquivo de saída em modo de leitura
+    return ifstream(nomeArquivo);
+}
+
+// Implementação da busca em profundidade (DFS) usando lista de adjacência
+pair<vector<int>, vector<int>> Grafo::implementacaoDFSLista(int vertice){
+    vector<int> visitado(numeroDeVertices, 0);
+    vector<int> nivel(numeroDeVertices, -1);
+    vector<int> pai(numeroDeVertices,0);
+
+    // Guarda o estado de cada vértice (visitado ou não) 
+    vector<int> visitado(numeroDeVertices, 0);
+    // Guarda o nível de cada vértice
+    vector<int> nivel(numeroDeVertices, -1);
+    // Guarda a ordem de visita dos vértices
+    vector<int> pai(numeroDeVertices,0);
+    // pilha para a DFS
+    stack<int> pilha;
+
+
+    pilha.push(vertice);
+    visitado[vertice] = 1;
+    nivel[vertice] = 0;
+
+    while (!pilha.empty()) {
+        int atual = pilha.top();
+        pilha.pop();
+
+        No* n = listaAdjacencia->estrutura[atual];
+        while (n != nullptr) {
+            if (!visitado[n->valor]) {
+                visitado[n->valor] = 1;
+                nivel[n->valor] = nivel[atual] + 1;
+                pai[n->valor] = atual;
+                pilha.push(n->valor);
+            }
+            n = n->prox;
+        }
+    }
+
+    return make_pair(pai, nivel);
+}
+
+// Metodo que chama a implementação da distância entre dois vértices dependendo do tipo de grafo
 ifstream Grafo::distancia(int vertice1, int vertice2){
     if (tipo ==0){
         return distanciaLista(vertice1, vertice2);
@@ -270,3 +372,4 @@ ifstream Grafo::distancia(int vertice1, int vertice2){
         return distanciaMatriz(vertice1, vertice2);
     }
 } 
+
