@@ -33,41 +33,40 @@ class Grafo{
         ifstream dfs(int vertice); // item 4
         ifstream distancia(int vertice1, int vertice2); //item 5 (distancia entre dois vertices)
         ~Grafo();        
-        vector<vector<int>> componentesConexas(); // item 6
+        
 
     private:
         int tipo; // 0 = lista de adjacencia, 1 = matriz de adjacencia
         int numeroDeVertices = 0;
         ListaAdjacencia* listaAdjacencia = nullptr; // para tipo 0
-        int numVertices;
         vector<vector<bool>> matrizAdjacencia;
-        vector<vector<int>> componentesConexasMatriz();
 
         void inicializaLista(ifstream& arquivo);
         void inicializaMatriz(ifstream& arquivo);
+        
 
         ifstream saidaLista();
             void infosGrauLista(ostream& arquivo);
             void diametroLista(ostream& arquivo);
             void componentesConexasLista(ostream& arquivo);
         ifstream saidaMatriz();
+            vector<vector<int>> componentesConexasMatriz();
+            int diametroMatriz();
 
         ifstream bfsLista(int vertice);
-        pair<vector<int>, vector<int>> implementacaoBFSLista(int vertice);
-        ArvoreBusca implementacaobfsMatriz(int vertice);
+            pair<vector<int>, vector<int>> implementacaoBFSLista(int vertice);
         ifstream bfsMatriz(int vertice);
+            ArvoreBusca implementacaobfsMatriz(int vertice);
 
         ifstream dfsLista(int vertice);
-        pair<vector<int>, vector<int>> implementacaoDFSLista(int vertice);
-        ArvoreBusca implementacaodfsMatriz(int vertice);
+            pair<vector<int>, vector<int>> implementacaoDFSLista(int vertice);
         ifstream dfsMatriz(int vertice);
+            ArvoreBusca implementacaodfsMatriz(int vertice);
 
         ifstream distanciaLista(int vertice1, int vertice2);
         ifstream distanciaMatriz(int vertice1, int vertice2);
 
         void liberarListaAdjacencia();
-        
-        int diametroMatriz();
 };
 
 #endif

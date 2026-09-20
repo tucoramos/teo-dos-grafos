@@ -32,12 +32,34 @@ void Grafo::inicializaLista(ifstream& arquivo) {
 
     // Inicializa a lista de adjacência
     listaAdjacencia = new ListaAdjacencia(numeroDeVertices);
-    int vertice, adjacente;
+    int vertice1, vertice2;
 
     // Continue a leitura do arquivo para construir a lista de adjacência
-    while (arquivo >> vertice >> adjacente) {
-        listaAdjacencia->adicionarAresta(vertice, adjacente);
+    while (arquivo >> vertice1 >> vertice2) {
+        listaAdjacencia->adicionarAresta(vertice1, vertice2);
     }
+    
+}
+
+void Grafo::inicializaMatriz(ifstream& arquivo){
+    if (!arquivo.is_open()) {
+        throw invalid_argument("Erro ao abrir o arquivo");
+        return;
+    }
+
+    // Lê o número de vértices do arquivo
+    arquivo >> numeroDeVertices;
+
+    // Inicializa a lista de adjacência
+    matrizAdjacencia.resize(numeroDeVertices, vector<bool>(numeroDeVertices, false));
+    int vertice1, vertice2;
+
+    // Continue a leitura do arquivo para construir a lista de adjacência
+    while (arquivo >> vertice1 >> vertice2) {
+        matrizAdjacencia[vertice1][vertice2] = true;
+        matrizAdjacencia[vertice2][vertice1] = true; // Grafo não direcionado
+    }
+
 }
 
 // Metodo que chama a implementação da saída do grafo dependendo do tipo de grafo
@@ -48,6 +70,93 @@ ifstream Grafo::saidaGrafo(){
         return saidaMatriz();
     }
 } 
+
+ifstream Grafo::saidaMatriz(){
+    // Cria um arquivo de saída para a matriz de adjacência
+    string nomeArquivo = "saida_matriz.txt";
+    ofstream arquivo(nomeArquivo);
+
+    // Verifica se o arquivo abre corretamente
+    if (!arquivo.is_open()) {
+        throw invalid_argument("Erro ao abrir o arquivo de saída");
+    }
+
+    arquivo << "Dados sobre o grafo:\n";
+    arquivo << "Formato salvo na memoria: matriz de Adjacencia\n";
+
+    //numero de vertices,
+    arquivo << "Numero de vertices: " << numeroDeVertices << endl;
+
+    //numero de arestas,
+    int numeroDeArestas = 0;
+    for (int i = 0; i < numeroDeVertices; ++i) {
+        for (int j = i + 1; j < numeroDeVertices; ++j) {
+            if (matrizAdjacencia[i][j]) {
+                numeroDeArestas++;
+            }
+        }
+    }
+    arquivo << "Numero de arestas: " << numeroDeArestas << endl;
+
+    vector<int> graus(numeroDeVertices, 0);
+    for (int i = 0; i < numeroDeVertices; ++i) {
+        for (int j = 0; j < numeroDeVertices; ++j) {
+            if (matrizAdjacencia[i][j]) {
+                graus[i]++;
+            }
+        }
+    }
+
+    //grau minimo,
+    int grauMinimo = *min_element(graus.begin() + 1, graus.end());
+    arquivo << "Grau minimo: " << grauMinimo << endl;
+
+    //grau maximo, 
+    int grauMaximo = *max_element(graus.begin() + 1, graus.end());
+    arquivo << "Grau maximo: " << grauMaximo << endl;
+    
+    //grau medio,
+    double grauMedio = 0;
+    for (int grau : graus) {
+        grauMedio += grau;
+    }
+    grauMedio /= numeroDeVertices;
+    arquivo << "Grau medio: " << grauMedio << endl;
+
+    //mediana de grau
+    sort(graus.begin(), graus.end());
+    double mediana;
+    if (numeroDeVertices % 2 == 0) {
+        mediana = (graus[numeroDeVertices / 2 - 1] + graus[numeroDeVertices / 2]) / 2.0;
+    } else {
+        mediana = graus[numeroDeVertices / 2];
+    }
+    arquivo << "Mediana de grau: " << mediana << endl;
+
+    //diametro do grafo,
+    int diametro = diametroMatriz();
+    if (diametro == -1) {
+        arquivo << "O grafo não é conexo." << endl;
+    } else {
+        arquivo << "Diametro do grafo: " << diametro << endl;
+    }
+
+    //numero de componentes conexas,
+    vector<vector<int>> componentes = componentesConexasMatriz();
+    size_t tam = componentes.size();
+    arquivo << "Numero de componentes conexas: " << tam << endl;
+    
+    for (size_t i = 0; i < tam; ++i) {
+        arquivo << "Componente " << i + 1 << " (tamanho: " << componentes[i].size() << "): \n   [";
+        for (int vertice : componentes[i]) {
+            arquivo << vertice + 1 << " "; // +1 para ajustar ao índice do vértice
+        }
+        arquivo << "]\n";
+    }
+
+    arquivo.close();
+    return ifstream(nomeArquivo);
+}
 
 // Implementação da iformações do grau dos vértices usando lista de adjacência
 void Grafo::infosGrauLista(ostream& arquivo){
@@ -229,10 +338,10 @@ ArvoreBusca Grafo::implementacaobfsMatriz(int vertice) {
     // Implementação do BFS para matriz de adjacência
     ArvoreBusca arv;
     arv.raiz = vertice;
-    arv.pai.assign(numVertices, -1);
-    arv.nivel.assign(numVertices, -1);
-    vector<bool>visitado(numVertices, false);
-    vector<int>fila(numVertices, -1);
+    arv.pai.assign(numeroDeVertices, -1);
+    arv.nivel.assign(numeroDeVertices, -1);
+    vector<bool>visitado(numeroDeVertices, false);
+    vector<int>fila(numeroDeVertices, -1);
     int indiceloop=0;
     int indicefila=1;
     vector<int>&pai=arv.pai;
@@ -244,7 +353,7 @@ ArvoreBusca Grafo::implementacaobfsMatriz(int vertice) {
     visitado[vertice-1]=true;
     while(indiceloop<indicefila){
         int atual=fila[indiceloop];
-        for(int i=0;i<numVertices;i++){
+        for(int i=0;i<numeroDeVertices;i++){
             if(matrizAdjacencia[atual-1][i] && !visitado[i]){
                 visitado[i]=true;
                 fila[indicefila]=i+1;
@@ -261,7 +370,7 @@ ArvoreBusca Grafo::implementacaobfsMatriz(int vertice) {
     return arv;
 /*    ofstream arquivoSaida("arvore_bfs.txt");
     arquivoSaida <<"# Arvore BFS a partir do vertice "<< vertice << "\n"; arquivoSaida << "# Vertice Pai Nivel\n";
-    for (int i = 0; i < numVertices; i++) {
+    for (int i = 0; i < numeroDeVertices; i++) {
         arquivoSaida << i+1 << " " << pai[i] << " " << nivel[i] << "\n";
         }
     return arquivoSaida;
@@ -271,13 +380,13 @@ ArvoreBusca Grafo::implementacaobfsMatriz(int vertice) {
 ArvoreBusca Grafo::implementacaodfsMatriz(int vertice) {
     ArvoreBusca arv;
     arv.raiz = vertice;
-    arv.pai.assign(numVertices, -1);
-    arv.nivel.assign(numVertices, -1);
+    arv.pai.assign(numeroDeVertices, -1);
+    arv.nivel.assign(numeroDeVertices, -1);
     vector<int>& pai = arv.pai;
     vector<int>& nivel = arv.nivel;
-    vector<int> proximo(numVertices, 0);
+    vector<int> proximo(numeroDeVertices, 0);
     int indice = 0;
-    vector<int> pilha(numVertices, -1);
+    vector<int> pilha(numeroDeVertices, -1);
 
     pilha[0]=vertice;
     pai[vertice-1] = -1;
@@ -285,8 +394,8 @@ ArvoreBusca Grafo::implementacaodfsMatriz(int vertice) {
 
     while (indice >= 0) {
         int atual = pilha[indice]-1;
-        for (int i = proximo[atual]; i <= numVertices; i++) {
-            if (i == numVertices) {
+        for (int i = proximo[atual]; i <= numeroDeVertices; i++) {
+            if (i == numeroDeVertices) {
                 indice--;
                 break;
             }
@@ -306,7 +415,7 @@ ArvoreBusca Grafo::implementacaodfsMatriz(int vertice) {
     arquivoSaida << "# Arvore DFS a partir do vertice " << vertice << "\n";
     arquivoSaida << "# Vertice Pai Nivel\n";
 
-    for (int i = 0; i < numVertices; i++) {
+    for (int i = 0; i < numeroDeVertices; i++) {
         arquivoSaida << i+1 << " " << pai[i] << " " << nivel[i] << "\n";
     }
 
@@ -314,16 +423,16 @@ ArvoreBusca Grafo::implementacaodfsMatriz(int vertice) {
 */
 }
 
-ifstream Grafo::distanciaMatriz(int vertice1, int vertice2){
-    ArvoreBusca arv = implementacaobfsMatriz(vertice1);
-    //return arv.nivel[vertice2-1];
-}
+int Grafo::diametroMatriz() {
+    ArvoreBusca primeira = implementacaobfsMatriz(1);
 
-int Grafo::diametroMatriz(){
-    int diametro = 0;
-    int temp=0;
-    for (int i = 1; i <= numVertices; i++) {
-        temp=implementacaobfsMatriz(i).nivelMaximo;
+    for (int i = 0; i < numeroDeVertices; i++) {
+        if (primeira.nivel[i] == -1) return -1;   // grafo desconexo: diametro infinito
+    }
+
+    int diametro = primeira.nivelMaximo;
+    for (int i = 2; i <= numeroDeVertices; i++) {      // o vertice 1 ja foi feito
+        int temp = implementacaobfsMatriz(i).nivelMaximo;
         if (diametro < temp) {
             diametro = temp;
         }
@@ -332,16 +441,16 @@ int Grafo::diametroMatriz(){
 }
 
 vector<vector<int>> Grafo::componentesConexasMatriz() {
-    vector<bool> visitado(numVertices, false);
+    vector<bool> visitado(numeroDeVertices, false);
     vector<vector<int>> componentes;
 
-    for (int raiz = 1; raiz <= numVertices; raiz++) {
+    for (int raiz = 1; raiz <= numeroDeVertices; raiz++) {
         if (visitado[raiz-1]) continue;        // ja pertence a uma componente anterior
 
         ArvoreBusca arv = implementacaobfsMatriz(raiz);     // alcanca exatamente a componente de raiz
 
         vector<int> vertices;
-        for (int i = 0; i < numVertices; i++) {
+        for (int i = 0; i < numeroDeVertices; i++) {
             if (arv.nivel[i] != -1) {          // nivel != -1 == foi alcancado
                 visitado[i] = true;
                 vertices.push_back(i+1);
@@ -385,6 +494,27 @@ ifstream Grafo::bfsLista(int vertice){
     arquivo.close();
 
     // Retorna o arquivo de saída em modo de leitura
+    return ifstream(nomeArquivo);
+}
+
+ifstream Grafo::bfsMatriz(int vertice){
+    string nomeArquivo = "bfs_matriz.txt";
+    ofstream arquivoSaida(nomeArquivo);
+
+    if (!arquivoSaida.is_open()) {
+        throw invalid_argument("Erro ao abrir o arquivo de saída");
+    }
+
+    ArvoreBusca arv = implementacaobfsMatriz(vertice);
+    
+    arquivoSaida << "BFS a partir do vertice " << vertice << "\n";
+    arquivoSaida << "Vertice | Pai | Nivel\n";
+
+    for (int i = 0; i < numeroDeVertices; i++) {
+        arquivoSaida << i+1 << " | " << arv.pai[i] << " | " << arv.nivel[i] << "\n";
+    }
+
+    arquivoSaida.close();
     return ifstream(nomeArquivo);
 }
 
@@ -465,6 +595,27 @@ ifstream Grafo::dfsLista(int vertice){
     arquivo.close();
 
     // Retorna o arquivo de saída em modo de leitura
+    return ifstream(nomeArquivo);
+}
+
+ifstream Grafo::dfsMatriz(int vertice){
+    string nomeArquivo = "dfs_matriz.txt";
+    ofstream arquivoSaida(nomeArquivo);
+
+    if (!arquivoSaida.is_open()) {
+        throw invalid_argument("Erro ao abrir o arquivo de saída");
+    }
+
+    ArvoreBusca arv = implementacaodfsMatriz(vertice);
+    
+    arquivoSaida << "DFS a partir do vertice " << vertice << "\n";
+    arquivoSaida << "Vertice | Pai | Nivel\n";
+
+    for (int i = 0; i < numeroDeVertices; i++) {
+        arquivoSaida << i+1 << " | " << arv.pai[i] << " | " << arv.nivel[i] << "\n";
+    }
+
+    arquivoSaida.close();
     return ifstream(nomeArquivo);
 }
 
@@ -565,6 +716,39 @@ ifstream Grafo::distanciaLista(int vertice1, int vertice2){
     }
 
     arquivo.close();
+    return ifstream(nomeArquivo);
+}
+
+ifstream Grafo::distanciaMatriz(int vertice1, int vertice2){
+    string nomeArquivo = "distancia_matriz.txt";
+    ofstream arquivoSaida(nomeArquivo);
+
+    if (!arquivoSaida.is_open()) {
+        throw invalid_argument("Erro ao abrir o arquivo de saída");
+    }
+
+    ArvoreBusca arv = implementacaobfsMatriz(vertice1);
+    if (arv.nivel[vertice2-1] == -1) {
+        arquivoSaida << "Nao ha caminho entre os vertices " << vertice1 << " e " << vertice2 << endl;
+    } else {    
+        vector<int> caminho;
+        for (int v = vertice2; v != -1; v = arv.pai[v-1]) {
+            caminho.push_back(v);
+        }
+        reverse(caminho.begin(), caminho.end());
+
+        arquivoSaida << "Distância entre os vértices " << vertice1 << " e " << vertice2 << ": " << arv.nivel[vertice2-1] << endl;
+        arquivoSaida << "Caminho: ";
+        for (size_t i = 0; i < caminho.size(); ++i) {
+            arquivoSaida << caminho[i];
+            if (i < caminho.size() - 1) {
+                arquivoSaida << " -> ";
+            }
+        }
+        arquivoSaida << endl;
+    }
+
+    arquivoSaida.close();
     return ifstream(nomeArquivo);
 }
 
