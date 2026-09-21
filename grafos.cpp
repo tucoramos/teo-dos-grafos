@@ -141,6 +141,14 @@ ifstream Grafo::saidaMatriz(){
         arquivo << "Diametro do grafo: " << diametro << endl;
     }
 
+    //diametro aproximado do grafo,
+    int diametroAproximado = diametroAproximadoMatriz();
+    if (diametro == -1) {
+        arquivo << "O grafo não é conexo [diametro aproximado]." << endl;
+    } else {
+        arquivo << "Diametro do grafo: " << diametroAproximado << endl;
+    }
+
     //numero de componentes conexas,
     vector<vector<int>> componentes = componentesConexasMatriz();
     size_t tam = componentes.size();
@@ -207,26 +215,47 @@ void Grafo::infosGrauLista(ostream& arquivo){
 
 // Implementação do calculo do diâmetro do grafo usando lista de adjacência
 void Grafo::diametroLista(ostream& arquivo){
-    int diametro = 0;
-    
-    for (int i = 1; i < numeroDeVertices + 1; ++i) {
-        // Para cada vértice, realiza uma busca em largura (BFS) para calcular a distância minima dele até os outros vértices
-        auto resultadoBFS = implementacaoBFSLista(i);
+    // Realiza uma busca em largura (BFS) a partir do vértice 1 para calcular a distância mínima de cada vértice até o vértice 1
+    ArvoreBusca primeira = implementacaoBFSLista(1);
 
-        // itera sobre os níveis para encontrar a maior distância mínima encontrada ate agora (inclusive de BFS de outros vértices)
-        for (int j = 1; j < numeroDeVertices + 1; ++j) {
-            if (resultadoBFS.nivel[j] != -1) {
-                diametro = max(diametro, resultadoBFS.nivel[j]);
-            } else {
-                // Se algum vértice não for alcançável, o grafo não é conexo
+    for (int i = 1; i < numeroDeVertices + 1; i++) {
+        // grafo desconexo: diametro infinito
+        if (primeira.nivel[i] == -1){
+            // Se algum vértice não for alcançável, o grafo não é conexo
                 arquivo << "O grafo não é conexo." << endl;
                 return; // Retorna vazio para indicar que o grafo não é conexo
-            }
-        }
+        }  
+    }
+
+    int diametro = primeira.nivelMaximo;
+
+    for (int i = 2; i < numeroDeVertices + 1; ++i) {
+        // Para cada vértice, realiza uma busca em largura (BFS) para calcular a distância minima dele até os outros vértices
+        auto resultadoBFS = implementacaoBFSLista(i);
+        // Atualiza o diâmetro se a distância máxima encontrada na BFS for maior que o diâmetro atual
+        diametro = max(diametro, resultadoBFS.nivelMaximo);     
     }
 
     // retorna o diâmetro do grafo, que é a maior distância mínima entre quaisquer dois vértices
     arquivo << "Diametro do grafo: " << diametro << endl;
+}
+
+// Implementação do calculo do diâmetro aproximado do grafo usando lista de adjacência
+void Grafo::diametroAproximadoLista(ostream& arquivo){
+    
+    ArvoreBusca primeira = implementacaoBFSLista(1);
+
+    for (int i = 1; i < numeroDeVertices + 1; i++) {
+        // grafo desconexo: diametro infinito
+        if (primeira.nivel[i] == -1){
+            // Se algum vértice não for alcançável, o grafo não é conexo
+                arquivo << "O grafo não é conexo [diametro aproximado]." << endl;
+                return; // Retorna vazio para indicar que o grafo não é conexo
+        }  
+    }
+
+    ArvoreBusca distante = implementacaoBFSLista(primeira.maisDistante);
+    arquivo << "Diametro aproximado do grafo: " << distante.nivelMaximo << endl;
 }
 
 // Implementação da contagem de componentes conexas usando lista de adjacência
@@ -316,6 +345,9 @@ ifstream Grafo::saidaLista(){
     //diametro do grafo,
     diametroLista(arquivo);
 
+    //diametro aproximado do grafo,
+    diametroAproximadoLista(arquivo);
+
     //numero de componentes conexas,
     componentesConexasLista(arquivo);
 
@@ -332,7 +364,7 @@ ifstream Grafo::bfs(int vertice){
     }
 }
 
-ArvoreBusca Grafo::implementacaobfsMatriz(int vertice) {
+ArvoreBusca Grafo::implementacaoBFSMatriz(int vertice) {
     // Implementação do BFS para matriz de adjacência
     ArvoreBusca arv;
     arv.raiz = vertice;
@@ -375,7 +407,7 @@ ArvoreBusca Grafo::implementacaobfsMatriz(int vertice) {
 */
 }
 
-ArvoreBusca Grafo::implementacaodfsMatriz(int vertice) {
+ArvoreBusca Grafo::implementacaoDFSMatriz(int vertice) {
     ArvoreBusca arv;
     arv.raiz = vertice;
     arv.pai.assign(numeroDeVertices, -1);
@@ -422,7 +454,7 @@ ArvoreBusca Grafo::implementacaodfsMatriz(int vertice) {
 }
 
 int Grafo::diametroMatriz() {
-    ArvoreBusca primeira = implementacaobfsMatriz(1);
+    ArvoreBusca primeira = implementacaoBFSMatriz(1);
 
     for (int i = 0; i < numeroDeVertices; i++) {
         if (primeira.nivel[i] == -1) return -1;   // grafo desconexo: diametro infinito
@@ -430,12 +462,23 @@ int Grafo::diametroMatriz() {
 
     int diametro = primeira.nivelMaximo;
     for (int i = 2; i <= numeroDeVertices; i++) {      // o vertice 1 ja foi feito
-        int temp = implementacaobfsMatriz(i).nivelMaximo;
+        int temp = implementacaoBFSMatriz(i).nivelMaximo;
         if (diametro < temp) {
             diametro = temp;
         }
     }
     return diametro;
+}
+
+int Grafo::diametroAproximadoMatriz(){
+    ArvoreBusca primeira = implementacaoBFSMatriz(1);
+
+    for (int i = 0; i < numeroDeVertices; i++) {
+        if (primeira.nivel[i] == -1) return -1;   // grafo desconexo: diametro infinito
+    }
+
+    ArvoreBusca distante = implementacaoBFSMatriz(primeira.maisDistante);
+    return distante.nivelMaximo;
 }
 
 vector<vector<int>> Grafo::componentesConexasMatriz() {
@@ -445,7 +488,7 @@ vector<vector<int>> Grafo::componentesConexasMatriz() {
     for (int raiz = 1; raiz <= numeroDeVertices; raiz++) {
         if (visitado[raiz-1]) continue;        // ja pertence a uma componente anterior
 
-        ArvoreBusca arv = implementacaobfsMatriz(raiz);     // alcanca exatamente a componente de raiz
+        ArvoreBusca arv = implementacaoBFSMatriz(raiz);     // alcanca exatamente a componente de raiz
 
         vector<int> vertices;
         for (int i = 0; i < numeroDeVertices; i++) {
@@ -508,7 +551,7 @@ ifstream Grafo::bfsMatriz(int vertice){
         throw invalid_argument("Erro ao abrir o arquivo de saída");
     }
 
-    ArvoreBusca arv = implementacaobfsMatriz(vertice);
+    ArvoreBusca arv = implementacaoBFSMatriz(vertice);
     
     arquivoSaida << "BFS a partir do vertice " << vertice << "\n";
     arquivoSaida << "Vertice | Pai | Nivel\n";
@@ -525,40 +568,60 @@ ifstream Grafo::bfsMatriz(int vertice){
 ArvoreBusca Grafo::implementacaoBFSLista(int vertice) {
     // Guarda o estado de cada vértice (visitado ou não) 
     vector<int> visitado(numeroDeVertices + 1, 0);
+
     // Guarda o nível de cada vértice
     vector<int> nivel(numeroDeVertices + 1, -1);
-    // Guarda a ordem de visita dos vértices
+
+    // Guarda o pai de cada vértice
     vector<int> pai(numeroDeVertices + 1, -1);
+
     // Fila para a BFS
     queue<int> fila;
 
     // Inicializa o vértice inicial
     visitado[vertice] = 1;
     nivel[vertice] = 0;
-    pai[vertice] = 0; // O vértice inicial não tem pai
+    pai[vertice] = 0;
     fila.push(vertice);
 
+    int nivelMaximo = 0;
+    int maisDistante = vertice;
 
     // Enquanto a fila não estiver vazia, continue a BFS
     while (!fila.empty()) {
-        // Pega o vértice da frente da fila e salva ele na ordem de visita
+
         int atual = fila.front();
         fila.pop();
 
-        // Itera sobre os vizinhos do vértice atual caso ele nao tenha sido visitado, marca o nível dele e adiciona na fila
         No* n = listaAdjacencia->estrutura[atual];
+
         while (n != nullptr) {
+
             if (!visitado[n->valor]) {
+
                 visitado[n->valor] = 1;
                 nivel[n->valor] = nivel[atual] + 1;
                 pai[n->valor] = atual;
+
+                if (nivel[n->valor] > nivelMaximo) {
+                    nivelMaximo = nivel[n->valor];
+                    maisDistante = n->valor;
+                }
+
                 fila.push(n->valor);
             }
+
             n = n->prox;
         }
     }
 
-    return ArvoreBusca{vertice, pai, nivel, -1, -1};
+    return ArvoreBusca{
+        vertice,
+        pai,
+        nivel,
+        nivelMaximo,
+        maisDistante
+    };
 }
 
 // Metodo que chama a implementação da DFS dependendo do tipo de grafo
@@ -615,7 +678,7 @@ ifstream Grafo::dfsMatriz(int vertice){
         throw invalid_argument("Erro ao abrir o arquivo de saída");
     }
 
-    ArvoreBusca arv = implementacaodfsMatriz(vertice);
+    ArvoreBusca arv = implementacaoDFSMatriz(vertice);
     
     arquivoSaida << "DFS a partir do vertice " << vertice << "\n";
     arquivoSaida << "Vertice | Pai | Nivel\n";
@@ -633,48 +696,67 @@ ArvoreBusca Grafo::implementacaoDFSLista(int vertice){
 
     // Guarda o estado de cada vértice (visitado ou não) 
     vector<int> visitado(numeroDeVertices + 1, 0);
+
     // Guarda o nível de cada vértice
     vector<int> nivel(numeroDeVertices + 1, -1);
-    // Guarda a ordem de visita dos vértices
-    vector<int> pai(numeroDeVertices + 1, -1);
-    // pilha para a DFS
-    stack<int> pilha;
 
+    // Guarda o pai de cada vértice
+    vector<int> pai(numeroDeVertices + 1, -1);
+
+    // Pilha para a DFS
+    stack<int> pilha;
 
     pilha.push(vertice);
     visitado[vertice] = 1;
     nivel[vertice] = 0;
-    pai[vertice] = 0; // O vértice inicial não tem pai
-    
+    pai[vertice] = 0;
+
+    int nivelMaximo = 0;
+    int maisDistante = vertice;
+
     vector<No*> proximo = listaAdjacencia->estrutura;
+
     while (!pilha.empty()) {
+
         int atual = pilha.top();
         No* n = proximo[atual];
 
-        // Pula os vizinhos que já foram visitados.
+        // Pula os vizinhos que já foram visitados
         while (n != nullptr && visitado[n->valor]) {
             n = n->prox;
         }
 
-        // Terminou todos os vizinhos: volta ao vértice anterior.
+        // Terminou todos os vizinhos: volta ao vértice anterior
         if (n == nullptr) {
             pilha.pop();
             continue;
         }
 
-        // Guarda onde retomar quando voltar para este vértice.
+        // Guarda onde retomar quando voltar para este vértice
         proximo[atual] = n->prox;
 
         int vizinho = n->valor;
+
         visitado[vizinho] = 1;
         pai[vizinho] = atual;
         nivel[vizinho] = nivel[atual] + 1;
 
-        // Explora esse vizinho antes de continuar os demais.
+        if (nivel[vizinho] > nivelMaximo) {
+            nivelMaximo = nivel[vizinho];
+            maisDistante = vizinho;
+        }
+
+        // Explora esse vizinho antes de continuar os demais
         pilha.push(vizinho);
     }
 
-    return ArvoreBusca{vertice, pai, nivel, -1, -1};//nivelMaximo e maisDistante nao usados na DFS, entao sao setados como -1
+    return ArvoreBusca{
+        vertice,
+        pai,
+        nivel,
+        nivelMaximo,
+        maisDistante
+    };
 }
 
 // Metodo que chama a implementação da distância entre dois vértices dependendo do tipo de grafo
@@ -734,7 +816,7 @@ ifstream Grafo::distanciaMatriz(int vertice1, int vertice2){
         throw invalid_argument("Erro ao abrir o arquivo de saída");
     }
 
-    ArvoreBusca arv = implementacaobfsMatriz(vertice1);
+    ArvoreBusca arv = implementacaoBFSMatriz(vertice1);
     if (arv.nivel[vertice2-1] == -1) {
         arquivoSaida << "Nao ha caminho entre os vertices " << vertice1 << " e " << vertice2 << endl;
     } else {    
