@@ -34,6 +34,11 @@ class Grafo{
         ifstream dfs(int vertice); // item 4
         ifstream distancia(int vertice1, int vertice2); //item 5 (distancia entre dois vertices)
         ~Grafo();        
+        // tornados publicos para fazer os estudo de caso
+        ArvoreBusca implementacaoBFSLista(int vertice);
+        ArvoreBusca implementacaoBFSMatriz(int vertice);
+        ArvoreBusca implementacaoDFSLista(int vertice);
+        ArvoreBusca implementacaoDFSMatriz(int vertice);
         
         private:
         int tipo; // 0 = lista de adjacencia, 1 = matriz de adjacencia
@@ -43,6 +48,7 @@ class Grafo{
         
         void inicializaLista(ifstream& arquivo);
         void inicializaMatriz(ifstream& arquivo);
+        
         
         ifstream saidaLista();
             void infosGrauLista(ostream& arquivo);
@@ -55,14 +61,10 @@ class Grafo{
             int diametroAproximadoMatriz();
         
         ifstream bfsLista(int vertice);
-            ArvoreBusca implementacaoBFSLista(int vertice);
         ifstream bfsMatriz(int vertice);
-            ArvoreBusca implementacaoBFSMatriz(int vertice);
         
         ifstream dfsLista(int vertice);
-            ArvoreBusca implementacaoDFSLista(int vertice);
         ifstream dfsMatriz(int vertice);
-            ArvoreBusca implementacaoDFSMatriz(int vertice);
         
         ifstream distanciaLista(int vertice1, int vertice2);
         ifstream distanciaMatriz(int vertice1, int vertice2);
