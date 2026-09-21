@@ -37,6 +37,7 @@ void Grafo::inicializaLista(ifstream& arquivo) {
     // Continue a leitura do arquivo para construir a lista de adjacência
     while (arquivo >> vertice1 >> vertice2) {
         listaAdjacencia->adicionarAresta(vertice1, vertice2);
+        numeroDeArestas++;
     }
     
 }
@@ -58,6 +59,7 @@ void Grafo::inicializaMatriz(ifstream& arquivo){
     while (arquivo >> vertice1 >> vertice2) {
         matrizAdjacencia[vertice1-1][vertice2-1] = true;
         matrizAdjacencia[vertice2-1][vertice1-1] = true; // Grafo não direcionado
+        numeroDeArestas++;
     }
 
 }
@@ -88,7 +90,7 @@ ifstream Grafo::saidaMatriz(){
     arquivo << "Numero de vertices: " << numeroDeVertices << endl;
 
     //numero de arestas,
-    int numeroDeArestas = 0;
+/*    int numeroDeArestas = 0;
     for (int i = 0; i < numeroDeVertices; ++i) {
         for (int j = i + 1; j < numeroDeVertices; ++j) {
             if (matrizAdjacencia[i][j]) {
@@ -96,6 +98,8 @@ ifstream Grafo::saidaMatriz(){
             }
         }
     }
+*/
+
     arquivo << "Numero de arestas: " << numeroDeArestas << endl;
 
     vector<int> graus(numeroDeVertices, 0);
@@ -300,7 +304,7 @@ ifstream Grafo::saidaLista(){
     arquivo << "Numero de vertices: " << numeroDeVertices << endl;
 
     //numero de arestas,
-    int numeroDeArestas = 0;
+/*    int numeroDeArestas = 0;
     for (int i = 1; i < numeroDeVertices + 1; ++i) {
         No* n = listaAdjacencia->estrutura[i];
         while (n != nullptr) {
@@ -308,7 +312,8 @@ ifstream Grafo::saidaLista(){
             n = n->prox;
         }
     }
-    arquivo << "Numero de arestas: " << numeroDeArestas/2 << endl;
+*/
+    arquivo << "Numero de arestas: " << numeroDeArestas << endl;
 
     //Infos sobre grau dos vertices
     infosGrauLista(arquivo);

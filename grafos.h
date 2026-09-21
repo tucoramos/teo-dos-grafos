@@ -32,12 +32,15 @@ class Grafo{
         ifstream bfs(int vertice); // item 4
         ifstream dfs(int vertice); // item 4
         ifstream distancia(int vertice1, int vertice2); //item 5 (distancia entre dois vertices)
-        ~Grafo();        
+        ~Grafo();
+        int vertices() const { return numeroDeVertices; }
+        int arestas() const { return numeroDeArestas; }        
         
 
     private:
         int tipo; // 0 = lista de adjacencia, 1 = matriz de adjacencia
         int numeroDeVertices = 0;
+        int numeroDeArestas = 0;
         ListaAdjacencia* listaAdjacencia = nullptr; // para tipo 0
         vector<vector<bool>> matrizAdjacencia;
 
