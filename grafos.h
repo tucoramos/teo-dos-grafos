@@ -28,44 +28,51 @@ class Grafo{
             //grau medio,
             //mediana de grau
             //diametro do grafo,
+            //diametro aproximado do grafo,
             //numero de componentes conexas,
         ifstream bfs(int vertice); // item 4
         ifstream dfs(int vertice); // item 4
         ifstream distancia(int vertice1, int vertice2); //item 5 (distancia entre dois vertices)
-        ~Grafo();
+
+        
         int vertices() const { return numeroDeVertices; }
         int arestas() const { return numeroDeArestas; }        
-        
 
-    private:
+        ~Grafo();        
+        // tornados publicos para fazer os estudo de caso
+        ArvoreBusca implementacaoBFSLista(int vertice);
+        ArvoreBusca implementacaoBFSMatriz(int vertice);
+        ArvoreBusca implementacaoDFSLista(int vertice);
+        ArvoreBusca implementacaoDFSMatriz(int vertice);
+
+        
+        private:
         int tipo; // 0 = lista de adjacencia, 1 = matriz de adjacencia
         int numeroDeVertices = 0;
         int numeroDeArestas = 0;
         ListaAdjacencia* listaAdjacencia = nullptr; // para tipo 0
         vector<vector<bool>> matrizAdjacencia;
-
+        
         void inicializaLista(ifstream& arquivo);
         void inicializaMatriz(ifstream& arquivo);
         
-
+        
         ifstream saidaLista();
             void infosGrauLista(ostream& arquivo);
             void diametroLista(ostream& arquivo);
+            void diametroAproximadoLista(ostream& arquivo);
             void componentesConexasLista(ostream& arquivo);
         ifstream saidaMatriz();
             vector<vector<int>> componentesConexasMatriz();
             int diametroMatriz();
-
+            int diametroAproximadoMatriz();
+        
         ifstream bfsLista(int vertice);
-            ArvoreBusca implementacaoBFSLista(int vertice);
         ifstream bfsMatriz(int vertice);
-            ArvoreBusca implementacaobfsMatriz(int vertice);
-
+        
         ifstream dfsLista(int vertice);
-            ArvoreBusca implementacaoDFSLista(int vertice);
         ifstream dfsMatriz(int vertice);
-            ArvoreBusca implementacaodfsMatriz(int vertice);
-
+        
         ifstream distanciaLista(int vertice1, int vertice2);
         ifstream distanciaMatriz(int vertice1, int vertice2);
 
