@@ -33,25 +33,17 @@ class Grafo{
         ifstream bfs(int vertice); // item 4
         ifstream dfs(int vertice); // item 4
         ifstream distancia(int vertice1, int vertice2); //item 5 (distancia entre dois vertices)
-        
-        //Metodos que tiveram que virar public para fazer as analises de tempo no main.cpp
-        ArvoreBusca implementacaoBFSLista(int vertice);
-        ArvoreBusca implementacaoBFSMatriz(int vertice);
-        ArvoreBusca implementacaoDFSMatriz(int vertice);
-        ArvoreBusca implementacaoDFSLista(int vertice);
         ~Grafo();        
         
-
-    private:
+        private:
         int tipo; // 0 = lista de adjacencia, 1 = matriz de adjacencia
         int numeroDeVertices = 0;
         ListaAdjacencia* listaAdjacencia = nullptr; // para tipo 0
         vector<vector<bool>> matrizAdjacencia;
-
+        
         void inicializaLista(ifstream& arquivo);
         void inicializaMatriz(ifstream& arquivo);
         
-
         ifstream saidaLista();
             void infosGrauLista(ostream& arquivo);
             void diametroLista(ostream& arquivo);
@@ -61,13 +53,17 @@ class Grafo{
             vector<vector<int>> componentesConexasMatriz();
             int diametroMatriz();
             int diametroAproximadoMatriz();
-
+        
         ifstream bfsLista(int vertice);
+            ArvoreBusca implementacaoBFSLista(int vertice);
         ifstream bfsMatriz(int vertice);
-
+            ArvoreBusca implementacaoBFSMatriz(int vertice);
+        
         ifstream dfsLista(int vertice);
+            ArvoreBusca implementacaoDFSLista(int vertice);
         ifstream dfsMatriz(int vertice);
-
+            ArvoreBusca implementacaoDFSMatriz(int vertice);
+        
         ifstream distanciaLista(int vertice1, int vertice2);
         ifstream distanciaMatriz(int vertice1, int vertice2);
 
