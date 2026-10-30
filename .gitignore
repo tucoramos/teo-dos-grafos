@@ -2,3 +2,6 @@
 *.txt
 *.txt.gz
 
+.build/
+.Instruções/
+.tests/

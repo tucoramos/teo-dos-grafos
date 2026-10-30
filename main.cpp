@@ -171,19 +171,19 @@ int main(void){
         // Calcular distâncias na Matriz de Adjacência
         auto tempo3 = high_resolution_clock::now();
         auto arvore3 = grafoMatriz.implementacaoBFSMatriz(10);
-        distancias[3] = arvore3.nivel[20 - 1];
+        distancias[3] = arvore3.nivel[20];
         auto tempoFinal3 = high_resolution_clock::now();
         duracao[3] = duration_cast<milliseconds>(tempoFinal3 - tempo3).count();
 
         auto tempo4 = high_resolution_clock::now();
         auto arvore4 = grafoMatriz.implementacaoBFSMatriz(10);
-        distancias[4] = arvore4.nivel[30 - 1];
+        distancias[4] = arvore4.nivel[30];
         auto tempoFinal4 = high_resolution_clock::now();
         duracao[4] = duration_cast<milliseconds>(tempoFinal4 - tempo4).count();
 
         auto tempo5 = high_resolution_clock::now();
         auto arvore5 = grafoMatriz.implementacaoBFSMatriz(20);
-        distancias[5] = arvore5.nivel[30 - 1];
+        distancias[5] = arvore5.nivel[30];
         auto tempoFinal5 = high_resolution_clock::now();
         duracao[5] = duration_cast<milliseconds>(tempoFinal5 - tempo5).count();
 
