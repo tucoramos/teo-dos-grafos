@@ -33,6 +33,23 @@ int Grafo::proximoVizinho(int vertice, CursorVizinhos& cursor) const {
     return matrizAdjacencia->proximoVizinho(vertice, cursor.coluna);
 }
 
+int Grafo::proximoVizinho(int vertice, CursorVizinhos& cursor, double& peso) const {
+    if (tipo == 0) return listaAdjacencia->proximoVizinho(cursor.proximo, peso);
+    return matrizAdjacencia->proximoVizinho(vertice, cursor.coluna, peso);
+}
+
+void Grafo::validarResultadoDijkstra(const ResultadoDijkstra& resultado) const {
+    validarVertice(resultado.origem);
+    const auto tamanho = static_cast<size_t>(numeroDeVertices) + 1;
+    if (resultado.distancia.size() != tamanho || resultado.pai.size() != tamanho) {
+        throw invalid_argument("ResultadoDijkstra incompativel com o numero de vertices");
+    }
+    if (resultado.pai[0] != -1 || resultado.pai[resultado.origem] != 0 ||
+        resultado.distancia[resultado.origem] != 0) {
+        throw invalid_argument("ResultadoDijkstra com origem ou indice reservado invalido");
+    }
+}
+
 ArvoreBusca Grafo::implementacaoBFSLista(int vertice) {
     validarBusca(vertice, 0);
     return calcularBFS(vertice);

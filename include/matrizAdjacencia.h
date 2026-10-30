@@ -11,14 +11,15 @@ public:
     MatrizAdjacencia(MatrizAdjacencia&&) = delete;
     MatrizAdjacencia& operator=(MatrizAdjacencia&&) = delete;
 
-    void adicionarAresta(int vertice1, int vertice2);
+    void adicionarAresta(int vertice1, int vertice2, double peso = 1);
     bool existeAresta(int vertice1, int vertice2) const;
     // Colunas 1..n em ordem crescente; atualiza o cursor e retorna zero no fim.
     int proximoVizinho(int vertice, int& coluna) const;
+    int proximoVizinho(int vertice, int& coluna, double& peso) const;
 
 private:
     int tamanho;
-    std::vector<std::vector<bool>> estrutura;
+    std::vector<std::vector<double>> estrutura;
     static std::size_t tamanhoValido(int tamanho);
     void validarVertice(int vertice) const;
 };

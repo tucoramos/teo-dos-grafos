@@ -22,6 +22,14 @@ struct ArvoreBusca {
     int maisDistante = 0;
 };
 
+// Indices 1..n; origem: distancia 0 e pai 0; inalcancaveis: infinito e pai -1.
+// O indice zero fica reservado, com pai[0] == -1.
+struct ResultadoDijkstra {
+    int origem = 0;
+    vector<double> distancia;
+    vector<int> pai;
+};
+
 class Grafo {
 public:
     // 0 = lista, 1 = matriz. Exige 1 <= n < INT_MAX e arestas validas.
@@ -40,6 +48,11 @@ public:
     ifstream dfs(int vertice);
     ifstream distancia(int vertice1, int vertice2);
 
+    // Calcula todos os destinos sem escrever arquivos; false = vetor, true = heap.
+    ResultadoDijkstra dijkstra(int origem, bool usarHeap) const;
+    vector<int> caminhoMinimo(const ResultadoDijkstra& resultado, int destino) const;
+    void escreverDijkstra(const ResultadoDijkstra& resultado, const string& nomeArquivo) const;
+
     // Compatibilidade com os programas de estudo de caso.
     ArvoreBusca implementacaoBFSLista(int vertice);
     ArvoreBusca implementacaoBFSMatriz(int vertice);
@@ -50,6 +63,7 @@ private:
     int tipo;
     int numeroDeVertices = 0;
     int numeroDeArestas = 0;
+    bool possuiPesoNegativo = false;
     // Somente o ponteiro da representacao escolhida possui um objeto.
     unique_ptr<ListaAdjacencia> listaAdjacencia;
     unique_ptr<MatrizAdjacencia> matrizAdjacencia;
@@ -63,10 +77,12 @@ private:
     };
     CursorVizinhos iniciarVizinhos(int vertice) const;
     int proximoVizinho(int vertice, CursorVizinhos& cursor) const;
+    int proximoVizinho(int vertice, CursorVizinhos& cursor, double& peso) const;
 
     void lerEntrada(ifstream& arquivo);
     void validarVertice(int vertice) const;
     void validarBusca(int vertice, int representacao) const;
+    void validarResultadoDijkstra(const ResultadoDijkstra& resultado) const;
 
     ArvoreBusca calcularBFS(int vertice) const;
     ArvoreBusca calcularDFS(int vertice) const;

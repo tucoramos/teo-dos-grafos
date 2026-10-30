@@ -1,6 +1,28 @@
 #include "grafos.h"
 
+#include <iomanip>
+#include <limits>
 #include <stdexcept>
+
+void Grafo::escreverDijkstra(const ResultadoDijkstra& resultado, const string& nomeArquivo) const {
+    validarResultadoDijkstra(resultado);
+    ofstream arquivo(nomeArquivo);
+    if (!arquivo.is_open()) throw invalid_argument("Erro ao abrir o arquivo de saida");
+    arquivo << setprecision(numeric_limits<double>::max_digits10);
+    arquivo << "Origem: " << resultado.origem << '\n';
+    arquivo << "Vertice Distancia Pai\n";
+    for (int v = 1; v <= numeroDeVertices; ++v) {
+        arquivo << v << ' ';
+        if (resultado.distancia[v] == numeric_limits<double>::infinity()) {
+            arquivo << "inalcancavel";
+        } else {
+            arquivo << resultado.distancia[v];
+        }
+        arquivo << ' ' << resultado.pai[v] << '\n';
+    }
+    arquivo.close();
+    if (!arquivo) throw ios_base::failure("Erro ao gravar o resultado de Dijkstra");
+}
 
 string Grafo::nomeArquivoSaida(const string& operacao) const {
     return operacao + (tipo == 0 ? "_lista.txt" : "_matriz.txt");

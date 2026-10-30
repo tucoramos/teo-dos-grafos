@@ -5,6 +5,7 @@
 
 struct No {
     int valor;
+    double peso;
     No* prox;
 };
 
@@ -17,10 +18,11 @@ public:
     ListaAdjacencia& operator=(ListaAdjacencia&&) = delete;
     ~ListaAdjacencia();
 
-    void adicionarAresta(int vertice1, int vertice2);
+    void adicionarAresta(int vertice1, int vertice2, double peso = 1);
     const No* primeiroVizinho(int vertice) const;
     // Consome um no do cursor; zero indica fim (vertices comecam em 1).
     int proximoVizinho(const No*& cursor) const;
+    int proximoVizinho(const No*& cursor, double& peso) const;
 
 private:
     int tamanho;

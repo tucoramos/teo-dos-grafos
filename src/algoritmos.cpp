@@ -1,8 +1,77 @@
 #include "grafos.h"
+#include "filaDijkstra.h"
 
 #include <algorithm>
+#include <cmath>
+#include <limits>
 #include <queue>
 #include <stack>
+#include <stdexcept>
+
+ResultadoDijkstra Grafo::dijkstra(int origem, bool usarHeap) const {
+    validarVertice(origem);
+    if (possuiPesoNegativo) {
+        throw invalid_argument("Dijkstra nao aceita grafos com pesos negativos");
+    }
+    ResultadoDijkstra resultado;
+    resultado.origem = origem;
+    resultado.distancia.assign(numeroDeVertices + 1, numeric_limits<double>::infinity());
+    resultado.pai.assign(numeroDeVertices + 1, -1);
+    vector<bool> concluidos(numeroDeVertices + 1, false);
+    FilaDijkstra fila(resultado.distancia, usarHeap);
+    resultado.pai[origem] = 0;
+    fila.atualizarDistancia(origem, 0);
+    for (int atual = fila.extrairMinimo(concluidos); atual != 0;
+         atual = fila.extrairMinimo(concluidos)) {
+        concluidos[atual] = true;
+        auto cursor = iniciarVizinhos(atual);
+        double peso;
+        for (int vizinho = proximoVizinho(atual, cursor, peso); vizinho != 0;
+             vizinho = proximoVizinho(atual, cursor, peso)) {
+            if (concluidos[vizinho]) continue;
+            // Subtrair o maior operando tambem detecta excesso que arredondaria
+            // para DBL_MAX em vez de produzir infinito na soma.
+            const double maior = max(resultado.distancia[atual], peso);
+            const double menor = min(resultado.distancia[atual], peso);
+            if (menor > numeric_limits<double>::max() - maior) {
+                throw overflow_error("Soma dos pesos excede o intervalo finito de double");
+            }
+            double candidata = resultado.distancia[atual] + peso;
+            if (!isfinite(candidata)) {
+                throw overflow_error("Soma dos pesos excede o intervalo finito de double");
+            }
+            if (candidata < resultado.distancia[vizinho]) {
+                fila.atualizarDistancia(vizinho, candidata);
+                resultado.pai[vizinho] = atual;
+            }
+        }
+    }
+    return resultado;
+}
+
+vector<int> Grafo::caminhoMinimo(const ResultadoDijkstra& resultado, int destino) const {
+    validarVertice(destino);
+    validarResultadoDijkstra(resultado);
+    const double distancia = resultado.distancia[destino];
+    if (distancia == numeric_limits<double>::infinity() && resultado.pai[destino] == -1) {
+        return {};
+    }
+    vector<int> caminho;
+    int atual = destino;
+    for (int passos = 0; passos < numeroDeVertices; ++passos) {
+        if (atual < 1 || atual > numeroDeVertices ||
+            !isfinite(resultado.distancia[atual]) || resultado.distancia[atual] < 0) {
+            throw invalid_argument("Cadeia de pais invalida em ResultadoDijkstra");
+        }
+        caminho.push_back(atual);
+        if (atual == resultado.origem) {
+            reverse(caminho.begin(), caminho.end());
+            return caminho;
+        }
+        atual = resultado.pai[atual];
+    }
+    throw invalid_argument("Ciclo na cadeia de pais de ResultadoDijkstra");
+}
 
 ArvoreBusca Grafo::calcularBFS(int vertice) const {
     ArvoreBusca arv;
