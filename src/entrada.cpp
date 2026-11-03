@@ -58,9 +58,9 @@ void Grafo::lerEntrada(ifstream& arquivo) {
         if (colunas == 3) {
             istringstream campoPeso(valores[2]);
             if (!(campoPeso >> peso) || (campoPeso >> extra) ||
-                !isfinite(peso) || peso == 0) {
+                !isfinite(peso)) {
                 throw invalid_argument("Peso invalido na linha " + to_string(numeroLinha) +
-                                       ": informe um double finito e diferente de zero");
+                                       ": informe um double finito");
             }
         }
         if (tipo == 0) {

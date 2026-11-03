@@ -11,8 +11,11 @@ std::size_t MatrizAdjacencia::tamanhoValido(int tamanho) {
     return static_cast<std::size_t>(tamanho);
 }
 
+// Infinito indica "sem aresta"; como todo peso e finito, peso zero e uma aresta valida.
 MatrizAdjacencia::MatrizAdjacencia(int tam)
-    : tamanho(tam), estrutura(tamanhoValido(tam), std::vector<double>(tamanhoValido(tam), 0)) {}
+    : tamanho(tam),
+      estrutura(tamanhoValido(tam),
+                std::vector<double>(tamanhoValido(tam), std::numeric_limits<double>::infinity())) {}
 
 void MatrizAdjacencia::validarVertice(int vertice) const {
     if (vertice < 1 || vertice > tamanho) {
@@ -23,11 +26,12 @@ void MatrizAdjacencia::validarVertice(int vertice) const {
 void MatrizAdjacencia::adicionarAresta(int vertice1, int vertice2, double peso) {
     validarVertice(vertice1);
     validarVertice(vertice2);
-    if (!std::isfinite(peso) || peso == 0) {
-        throw std::invalid_argument("Peso deve ser finito e diferente de zero");
+    if (!std::isfinite(peso)) {
+        throw std::invalid_argument("Peso deve ser finito");
     }
+    // Em arestas repetidas fica o menor peso (sem aresta = infinito, sempre substituido).
     double& atual = estrutura[vertice1 - 1][vertice2 - 1];
-    if (atual == 0 || peso < atual) {
+    if (peso < atual) {
         atual = peso;
         estrutura[vertice2 - 1][vertice1 - 1] = peso;
     }
@@ -36,7 +40,7 @@ void MatrizAdjacencia::adicionarAresta(int vertice1, int vertice2, double peso) 
 bool MatrizAdjacencia::existeAresta(int vertice1, int vertice2) const {
     validarVertice(vertice1);
     validarVertice(vertice2);
-    return estrutura[vertice1 - 1][vertice2 - 1] != 0;
+    return !std::isinf(estrutura[vertice1 - 1][vertice2 - 1]);
 }
 
 int MatrizAdjacencia::proximoVizinho(int vertice, int& coluna) const {
@@ -52,7 +56,7 @@ int MatrizAdjacencia::proximoVizinho(int vertice, int& coluna, double& peso) con
     while (coluna <= tamanho) {
         int vizinho = coluna++;
         const double valor = estrutura[vertice - 1][vizinho - 1];
-        if (valor != 0) {
+        if (!std::isinf(valor)) {
             peso = valor;
             return vizinho;
         }

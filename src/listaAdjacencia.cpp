@@ -35,8 +35,8 @@ void ListaAdjacencia::validarVertice(int vertice) const {
 void ListaAdjacencia::adicionarAresta(int vertice1, int vertice2, double peso) {
     validarVertice(vertice1);
     validarVertice(vertice2);
-    if (!std::isfinite(peso) || peso == 0) {
-        throw std::invalid_argument("Peso deve ser finito e diferente de zero");
+    if (!std::isfinite(peso)) {
+        throw std::invalid_argument("Peso deve ser finito");
     }
     // Ambos sao alocados antes da insercao: uma falha nao deixa meia aresta.
     std::unique_ptr<No> primeiro(new No{vertice2, peso, nullptr});
