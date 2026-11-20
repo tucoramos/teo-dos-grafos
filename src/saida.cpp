@@ -24,6 +24,56 @@ void Grafo::escreverDijkstra(const ResultadoDijkstra& resultado, const string& n
     if (!arquivo) throw ios_base::failure("Erro ao gravar o resultado de Dijkstra");
 }
 
+void Grafo::escreverBellmanFord(const ResultadoBellmanFord& resultado,
+                              const string& nomeArquivo) const {
+    validarResultadoBellmanFord(resultado);
+    ofstream arquivo(nomeArquivo);
+    if (!arquivo.is_open()) throw invalid_argument("Erro ao abrir o arquivo de saida");
+    arquivo << setprecision(numeric_limits<double>::max_digits10);
+    arquivo << "Destino: " << resultado.destino << '\n';
+    arquivo << "Ciclo negativo: " << (resultado.possuiCicloNegativo ? "sim" : "nao") << '\n';
+    if (!resultado.possuiCicloNegativo) {
+        arquivo << "Vertice Distancia Proximo\n";
+        for (int v = 1; v <= numeroDeVertices; ++v) {
+            arquivo << v << ' ';
+            if (resultado.distancia[v] == numeric_limits<double>::infinity()) {
+                arquivo << "inalcancavel";
+            } else {
+                arquivo << resultado.distancia[v];
+            }
+            arquivo << ' ' << resultado.proximo[v] << '\n';
+        }
+    }
+    arquivo.close();
+    if (!arquivo) throw ios_base::failure("Erro ao gravar o resultado de Bellman-Ford");
+}
+
+void Grafo::escreverFloydWarshall(const ResultadoFloydWarshall& resultado,
+                                const string& nomeArquivo) const {
+    validarResultadoFloydWarshall(resultado, true);
+    ofstream arquivo(nomeArquivo);
+    if (!arquivo.is_open()) throw invalid_argument("Erro ao abrir o arquivo de saida");
+    arquivo << setprecision(numeric_limits<double>::max_digits10);
+    arquivo << "Ciclo negativo: " << (resultado.possuiCicloNegativo ? "sim" : "nao") << '\n';
+    if (!resultado.possuiCicloNegativo) {
+        for (int u = 1; u <= numeroDeVertices; ++u) {
+            arquivo << "Origem: " << u << '\n';
+            arquivo << "Vertice Distancia Pai\n";
+            for (int v = 1; v <= numeroDeVertices; ++v) {
+                arquivo << v << ' ';
+                if (resultado.distancia[u][v] == numeric_limits<double>::infinity()) {
+                    arquivo << "inalcancavel";
+                } else {
+                    arquivo << resultado.distancia[u][v];
+                }
+                arquivo << ' ' << resultado.pai[u][v] << '\n';
+            }
+        }
+    }
+    arquivo.close();
+    if (!arquivo) throw ios_base::failure("Erro ao gravar o resultado de Floyd-Warshall");
+}
+
 string Grafo::nomeArquivoSaida(const string& operacao) const {
     return operacao + (tipo == 0 ? "_lista.txt" : "_matriz.txt");
 }

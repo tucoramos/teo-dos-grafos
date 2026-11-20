@@ -12,8 +12,8 @@ std::size_t MatrizAdjacencia::tamanhoValido(int tamanho) {
 }
 
 // Infinito indica "sem aresta"; como todo peso e finito, peso zero e uma aresta valida.
-MatrizAdjacencia::MatrizAdjacencia(int tam)
-    : tamanho(tam),
+MatrizAdjacencia::MatrizAdjacencia(int tam, bool orientado)
+    : tamanho(tam), direcionado(orientado),
       estrutura(tamanhoValido(tam),
                 std::vector<double>(tamanhoValido(tam), std::numeric_limits<double>::infinity())) {}
 
@@ -33,7 +33,7 @@ void MatrizAdjacencia::adicionarAresta(int vertice1, int vertice2, double peso) 
     double& atual = estrutura[vertice1 - 1][vertice2 - 1];
     if (peso < atual) {
         atual = peso;
-        estrutura[vertice2 - 1][vertice1 - 1] = peso;
+        if (!direcionado) estrutura[vertice2 - 1][vertice1 - 1] = peso;
     }
 }
 

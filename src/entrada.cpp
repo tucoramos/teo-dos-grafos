@@ -23,9 +23,9 @@ void Grafo::lerEntrada(ifstream& arquivo) {
     }
 
     if (tipo == 0) {
-        listaAdjacencia.reset(new ListaAdjacencia(numeroDeVertices));
+        listaAdjacencia.reset(new ListaAdjacencia(numeroDeVertices, direcionado));
     } else {
-        matrizAdjacencia.reset(new MatrizAdjacencia(numeroDeVertices));
+        matrizAdjacencia.reset(new MatrizAdjacencia(numeroDeVertices, direcionado));
     }
     size_t numeroLinha = 1;
     size_t colunas = 0;

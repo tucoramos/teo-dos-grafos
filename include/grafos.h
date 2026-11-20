@@ -30,11 +30,37 @@ struct ResultadoDijkstra {
     vector<int> pai;
 };
 
+// Distancias de cada vertice ate destino; proximo segue a orientacao original.
+// Em ciclo negativo (em qualquer componente), os vetores ficam vazios.
+struct ResultadoBellmanFord {
+    int destino = 0;
+    bool possuiCicloNegativo = false;
+    vector<double> distancia;
+    vector<int> proximo;
+};
+
+// pai[u][v] e o predecessor de v no caminho iniciado em u.
+// Em ciclo negativo (em qualquer componente), as matrizes ficam vazias.
+struct ResultadoFloydWarshall {
+    bool possuiCicloNegativo = false;
+    vector<vector<double>> distancia;
+    vector<vector<int>> pai;
+};
+
+#ifdef GRAFOS_TESTES
+// Instrumentacao disponivel somente quando toda a biblioteca e compilada para testes.
+struct EstatisticasBellmanFord {
+    size_t rodadasDeteccao = 0, rodadasConsulta = 0;
+    size_t verticesDeteccao = 0, verticesConsulta = 0;
+    size_t arestasDeteccao = 0, arestasConsulta = 0;
+};
+#endif
+
 class Grafo {
 public:
     // 0 = lista, 1 = matriz. Exige 1 <= n < INT_MAX e arestas validas.
     // Entradas invalidas lancam invalid_argument; falhas de leitura, ios_base::failure.
-    Grafo(int tipoGrafo, ifstream& arquivo);
+    Grafo(int tipoGrafo, ifstream& arquivo, bool direcionado = false);
     Grafo(const Grafo&) = delete;
     Grafo& operator=(const Grafo&) = delete;
     Grafo(Grafo&&) = delete;
@@ -43,6 +69,8 @@ public:
 
     int vertices() const { return numeroDeVertices; }
     int arestas() const { return numeroDeArestas; }
+    bool ehDirecionado() const { return direcionado; }
+    // Relatorio de componentes e diametros disponivel apenas para nao direcionados.
     ifstream saidaGrafo();
     ifstream bfs(int vertice);
     ifstream dfs(int vertice);
@@ -53,6 +81,20 @@ public:
     vector<int> caminhoMinimo(const ResultadoDijkstra& resultado, int destino) const;
     void escreverDijkstra(const ResultadoDijkstra& resultado, const string& nomeArquivo) const;
 
+    ResultadoBellmanFord bellmanFord(int destino) const;
+    ResultadoFloydWarshall floydWarshall() const;
+    vector<int> caminhoMinimo(const ResultadoBellmanFord& resultado, int origem) const;
+    vector<int> caminhoMinimo(const ResultadoFloydWarshall& resultado,
+                             int origem, int destino) const;
+    void escreverBellmanFord(const ResultadoBellmanFord& resultado,
+                            const string& nomeArquivo) const;
+    void escreverFloydWarshall(const ResultadoFloydWarshall& resultado,
+                              const string& nomeArquivo) const;
+
+#ifdef GRAFOS_TESTES
+    const EstatisticasBellmanFord& estatisticasBellmanFord() const { return estatisticasBF; }
+#endif
+
     // Compatibilidade com os programas de estudo de caso.
     ArvoreBusca implementacaoBFSLista(int vertice);
     ArvoreBusca implementacaoBFSMatriz(int vertice);
@@ -61,12 +103,16 @@ public:
 
 private:
     int tipo;
+    bool direcionado;
     int numeroDeVertices = 0;
     int numeroDeArestas = 0;
     bool possuiPesoNegativo = false;
     // Somente o ponteiro da representacao escolhida possui um objeto.
     unique_ptr<ListaAdjacencia> listaAdjacencia;
     unique_ptr<MatrizAdjacencia> matrizAdjacencia;
+#ifdef GRAFOS_TESTES
+    mutable EstatisticasBellmanFord estatisticasBF;
+#endif
 
     // Cursor pequeno, sem propriedade da memoria nem copia de vizinhos.
     // Na lista guarda o proximo no; na matriz, a proxima coluna (1..n).
@@ -83,6 +129,9 @@ private:
     void validarVertice(int vertice) const;
     void validarBusca(int vertice, int representacao) const;
     void validarResultadoDijkstra(const ResultadoDijkstra& resultado) const;
+    void validarResultadoBellmanFord(const ResultadoBellmanFord& resultado) const;
+    void validarResultadoFloydWarshall(const ResultadoFloydWarshall& resultado,
+                                      bool completo = false) const;
 
     ArvoreBusca calcularBFS(int vertice) const;
     ArvoreBusca calcularDFS(int vertice) const;

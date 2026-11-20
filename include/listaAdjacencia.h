@@ -11,7 +11,7 @@ struct No {
 
 class ListaAdjacencia {
 public:
-    explicit ListaAdjacencia(int tamanho);
+    explicit ListaAdjacencia(int tamanho, bool direcionado = false);
     ListaAdjacencia(const ListaAdjacencia&) = delete;
     ListaAdjacencia& operator=(const ListaAdjacencia&) = delete;
     ListaAdjacencia(ListaAdjacencia&&) = delete;
@@ -26,6 +26,7 @@ public:
 
 private:
     int tamanho;
+    bool direcionado;
     std::vector<No*> estrutura;
     static std::size_t tamanhoValido(int tamanho);
     void validarVertice(int vertice) const;

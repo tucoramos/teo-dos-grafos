@@ -12,8 +12,8 @@ std::size_t ListaAdjacencia::tamanhoValido(int tamanho) {
     return static_cast<std::size_t>(tamanho) + 1;
 }
 
-ListaAdjacencia::ListaAdjacencia(int tam)
-    : tamanho(tam), estrutura(tamanhoValido(tam), nullptr) {}
+ListaAdjacencia::ListaAdjacencia(int tam, bool orientado)
+    : tamanho(tam), direcionado(orientado), estrutura(tamanhoValido(tam), nullptr) {}
 
 ListaAdjacencia::~ListaAdjacencia() {
     for (int i = 1; i <= tamanho; ++i) {
@@ -38,13 +38,16 @@ void ListaAdjacencia::adicionarAresta(int vertice1, int vertice2, double peso) {
     if (!std::isfinite(peso)) {
         throw std::invalid_argument("Peso deve ser finito");
     }
-    // Ambos sao alocados antes da insercao: uma falha nao deixa meia aresta.
+    // No nao direcionado, aloca ambos antes de inserir para nao deixar meia aresta.
     std::unique_ptr<No> primeiro(new No{vertice2, peso, nullptr});
-    std::unique_ptr<No> segundo(new No{vertice1, peso, nullptr});
+    std::unique_ptr<No> segundo;
+    if (!direcionado) segundo.reset(new No{vertice1, peso, nullptr});
     primeiro->prox = estrutura[vertice1];
     estrutura[vertice1] = primeiro.release();
-    segundo->prox = estrutura[vertice2];
-    estrutura[vertice2] = segundo.release();
+    if (segundo) {
+        segundo->prox = estrutura[vertice2];
+        estrutura[vertice2] = segundo.release();
+    }
 }
 
 const No* ListaAdjacencia::primeiroVizinho(int vertice) const {

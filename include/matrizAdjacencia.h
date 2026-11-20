@@ -5,7 +5,7 @@
 
 class MatrizAdjacencia {
 public:
-    explicit MatrizAdjacencia(int tamanho);
+    explicit MatrizAdjacencia(int tamanho, bool direcionado = false);
     MatrizAdjacencia(const MatrizAdjacencia&) = delete;
     MatrizAdjacencia& operator=(const MatrizAdjacencia&) = delete;
     MatrizAdjacencia(MatrizAdjacencia&&) = delete;
@@ -19,6 +19,7 @@ public:
 
 private:
     int tamanho;
+    bool direcionado;
     std::vector<std::vector<double>> estrutura;
     static std::size_t tamanhoValido(int tamanho);
     void validarVertice(int vertice) const;
